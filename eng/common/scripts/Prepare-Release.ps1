@@ -2,12 +2,17 @@
 
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory=$true)]
     [string]$PackageName,
-    [string]$ServiceDirectory,
+    [string]$ArtifactName,
     [string]$ReleaseDate, # Pass Date in the form MM/dd/yyyy"
     [string]$BuildType # For Java
 )
+
+if (!$PackageName -and !$ArtifactName)
+{
+  LogError "You must specify either PackageName or ArtifactName Argument"
+  return $null
+}
 
 . ${PSScriptRoot}\common.ps1
 
@@ -27,9 +32,20 @@ function Get-ReleaseDay($baseDate)
 
 $ErrorPreference = 'Stop'
 
-$packageProperties = Get-PkgProperties -PackageName $PackageName -ServiceDirectory $serviceDirectory
+if ($PackageName)
+{
+  $packageProperties = Get-PkgProperties -PackageName $PackageName
+}
+else
+{
+  $packageProperties = Get-PkgProperties -ArtifactName $ArtifactName
+}
 
-Write-Host "Source directory [ $serviceDirectory ]"
+if ($null -eq $packageProperties)
+{
+  LogError "Failed to get Package Properties with arguments PackageName:$PackageName and ArtifactName:$ArtifactName ].`
+            Ensure the correct PackageName or ArtifactName was specified."
+}
 
 if (!$ReleaseDate)
 {
@@ -82,8 +98,8 @@ if ($null -eq $newVersionParsed)
 
 if (Test-Path "Function:SetPackageVersion")
 {
-    SetPackageVersion -PackageName $packageProperties.Name -Version $newVersion -ServiceDirectory $serviceDirectory -ReleaseDate $releaseDateString `
-    -BuildType $BuildType -GroupId $packageProperties.Group
+    SetPackageVersion -PackageName $packageProperties.ArtifactName -Version $newVersion -ServiceDirectory $packageProperties.ServiceDirectory `
+     -ReleaseDate $releaseDateString -BuildType $BuildType -GroupId $packageProperties.Group
 }
 else
 {
@@ -98,7 +114,7 @@ else
 -packageName $packageProperties.Name `
 -version $newVersion `
 -plannedDate $releaseDateString `
--packageRepoPath $packageProperties.serviceDirectory
+-packageRepoPath $packageProperties.ServiceDirectory
 
 git diff -s --exit-code $packageProperties.DirectoryPath
 if ($LASTEXITCODE -ne 0)

@@ -3,9 +3,15 @@ param (
   [String]$ChangeLogLocation,
   [String]$VersionString,
   [string]$PackageName,
-  [string]$ServiceDirectory,
+  [string]$ArtifactName,
   [boolean]$ForRelease = $False
 )
+
+if (!$PackageName -and !$ArtifactName)
+{
+  LogError "You must specify either PackageName or ArtifactName Argument"
+  return $null
+}
 
 . (Join-Path $PSScriptRoot common.ps1)
 
@@ -16,7 +22,20 @@ if ($ChangeLogLocation -and $VersionString)
 }
 else
 {
-  $PackageProp = Get-PkgProperties -PackageName $PackageName -ServiceDirectory $ServiceDirectory
+  if ($PackageName)
+  {
+    $PackageProp = Get-PkgProperties -PackageName $PackageName
+  }
+  else
+  {
+    $PackageProp = Get-PkgProperties -ArtifactName $ArtifactName
+  }
+
+  if ($null -eq $PackageProp)
+  {
+    LogError "Failed to get Package Properties with arguments PackageName:$PackageName and ArtifactName:$ArtifactName ].`
+              Ensure the correct PackageName or ArtifactName was specified."
+  }
   $validChangeLog = Confirm-ChangeLogEntry -ChangeLogLocation $PackageProp.ChangeLogPath -VersionString $PackageProp.Version -ForRelease $ForRelease
 }
 

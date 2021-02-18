@@ -8,14 +8,18 @@
 param (
   [Parameter(Mandatory = $true)]
   [String]$Version,
-  [Parameter(Mandatory = $true)]
-  [String]$ServiceDirectory,
-  [Parameter(Mandatory = $true)]
-  [String]$PackageName,
+  [String]$PackageName = $null,
+  [string]$ArtifactName = $null,
   [Boolean]$Unreleased = $true,
   [Boolean]$ReplaceLatestEntryTitle = $false,
   [String]$ReleaseDate
 )
+
+if (!$PackageName -and !$ArtifactName)
+{
+  LogError "You must specify either PackageName or ArtifactName Argument"
+  return $null
+}
 
 . (Join-Path $PSScriptRoot common.ps1)
 
@@ -51,7 +55,21 @@ if ($null -eq [AzureEngSemanticVersion]::ParseVersionString($Version))
     exit 1
 }
 
-$PkgProperties = Get-PkgProperties -PackageName $PackageName -ServiceDirectory $ServiceDirectory
+if ($PackageName)
+{
+  $PkgProperties = Get-PkgProperties -PackageName $PackageName
+}
+else
+{
+  $PkgProperties = Get-PkgProperties -ArtifactName $ArtifactName
+}
+
+if ($null -eq $PkgProperties)
+{
+  LogError "Failed to get Package Properties with arguments PackageName:$PackageName and ArtifactName:$ArtifactName ].`
+            Ensure the correct PackageName or ArtifactName was specified."
+}
+
 $ChangeLogEntries = Get-ChangeLogEntries -ChangeLogLocation $PkgProperties.ChangeLogPath
 
 
