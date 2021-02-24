@@ -42,5 +42,5 @@ models-subpackage: implementation.models
 # custom-types: AccessRights,AuthorizationRule,EntityStatus,NamespaceProperties,MessagingSku
 # custom-types-subpackage: models
 context-client-method-parameter: true
-enable-xml: true
+enable-xml: false
 ```

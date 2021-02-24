@@ -139,7 +139,7 @@ public final class ManifestsImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<ManifestWrapper>> getWithResponseAsync(
             String name, String reference, String accept, Context context) {
-        final String accept = "application/json";
+//        final String accept = "application/json";
         return service.get(this.client.getUrl(), name, reference, accept, accept, context);
     }
 
