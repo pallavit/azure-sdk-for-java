@@ -6,12 +6,9 @@ package com.azure.containers.containerregistry.implementation.models;
 
 import com.azure.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import java.util.ArrayList;
 import java.util.List;
 
 /** Result of the request to list tags of the image. */
-@JacksonXmlRootElement(localName = "RepositoryTags")
 @Fluent
 public final class RepositoryTags {
     /*
@@ -23,8 +20,8 @@ public final class RepositoryTags {
     /*
      * List of tags
      */
-    @JsonProperty("RepositoryTagsItem")
-    private List<String> tags = new ArrayList<>();
+    @JsonProperty(value = "tags")
+    private List<String> tags;
 
     /**
      * Get the name property: Name of the image.

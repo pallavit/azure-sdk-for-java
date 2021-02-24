@@ -6,12 +6,9 @@ package com.azure.containers.containerregistry.implementation.models;
 
 import com.azure.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import java.util.ArrayList;
 import java.util.List;
 
 /** Returns the requested V1 manifest file. */
-@JacksonXmlRootElement(localName = "V1Manifest")
 @Fluent
 public final class V1Manifest extends Manifest {
     /*
@@ -35,20 +32,20 @@ public final class V1Manifest extends Manifest {
     /*
      * List of layer information
      */
-    @JsonProperty("FsLayer")
-    private List<FsLayer> fsLayers = new ArrayList<>();
+    @JsonProperty(value = "fsLayers")
+    private List<FsLayer> fsLayers;
 
     /*
      * Image history
      */
-    @JsonProperty("History")
-    private List<History> history = new ArrayList<>();
+    @JsonProperty(value = "history")
+    private List<History> history;
 
     /*
      * Image signature
      */
-    @JsonProperty("ImageSignature")
-    private List<ImageSignature> signatures = new ArrayList<>();
+    @JsonProperty(value = "signatures")
+    private List<ImageSignature> signatures;
 
     /**
      * Get the architecture property: CPU architecture.

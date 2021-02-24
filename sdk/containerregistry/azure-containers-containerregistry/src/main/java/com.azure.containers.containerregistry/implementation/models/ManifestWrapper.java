@@ -6,12 +6,9 @@ package com.azure.containers.containerregistry.implementation.models;
 
 import com.azure.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import java.util.ArrayList;
 import java.util.List;
 
 /** Returns the requested manifest file. */
-@JacksonXmlRootElement(localName = "ManifestWrapper")
 @Fluent
 public final class ManifestWrapper extends Manifest {
     /*
@@ -23,8 +20,8 @@ public final class ManifestWrapper extends Manifest {
     /*
      * (ManifestList, OCIIndex) List of V2 image layer information
      */
-    @JsonProperty("ManifestListAttributes")
-    private List<ManifestListAttributes> manifests = new ArrayList<>();
+    @JsonProperty(value = "manifests")
+    private List<ManifestListAttributes> manifests;
 
     /*
      * (V2, OCI) Image config descriptor
@@ -35,8 +32,8 @@ public final class ManifestWrapper extends Manifest {
     /*
      * (V2, OCI) List of V2 image layer information
      */
-    @JsonProperty("Descriptor")
-    private List<Descriptor> layers = new ArrayList<>();
+    @JsonProperty(value = "layers")
+    private List<Descriptor> layers;
 
     /*
      * (OCI, OCIIndex) Additional metadata
@@ -65,20 +62,20 @@ public final class ManifestWrapper extends Manifest {
     /*
      * (V1) List of layer information
      */
-    @JsonProperty("FsLayer")
-    private List<FsLayer> fsLayers = new ArrayList<>();
+    @JsonProperty(value = "fsLayers")
+    private List<FsLayer> fsLayers;
 
     /*
      * (V1) Image history
      */
-    @JsonProperty("History")
-    private List<History> history = new ArrayList<>();
+    @JsonProperty(value = "history")
+    private List<History> history;
 
     /*
      * (V1) Image signature
      */
-    @JsonProperty("ImageSignature")
-    private List<ImageSignature> signatures = new ArrayList<>();
+    @JsonProperty(value = "signatures")
+    private List<ImageSignature> signatures;
 
     /**
      * Get the mediaType property: Media type for this Manifest.

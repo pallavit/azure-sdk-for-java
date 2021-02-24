@@ -6,12 +6,9 @@ package com.azure.containers.containerregistry.implementation.models;
 
 import com.azure.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import java.util.ArrayList;
 import java.util.List;
 
 /** Manifest attributes. */
-@JacksonXmlRootElement(localName = "AcrManifests")
 @Fluent
 public final class AcrManifests {
     /*
@@ -29,8 +26,8 @@ public final class AcrManifests {
     /*
      * List of manifests
      */
-    @JsonProperty("ManifestAttributesBase")
-    private List<ManifestAttributesBase> manifestsAttributes = new ArrayList<>();
+    @JsonProperty(value = "manifests")
+    private List<ManifestAttributesBase> manifestsAttributes;
 
     /**
      * Get the registry property: Registry name.

@@ -6,12 +6,9 @@ package com.azure.containers.containerregistry.implementation.models;
 
 import com.azure.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import java.util.ArrayList;
 import java.util.List;
 
 /** Returns the requested OCI Manifest file. */
-@JacksonXmlRootElement(localName = "OCIManifest")
 @Fluent
 public final class OCIManifest extends Manifest {
     /*
@@ -23,8 +20,8 @@ public final class OCIManifest extends Manifest {
     /*
      * List of V2 image layer information
      */
-    @JsonProperty("Descriptor")
-    private List<Descriptor> layers = new ArrayList<>();
+    @JsonProperty(value = "layers")
+    private List<Descriptor> layers;
 
     /*
      * Additional information provided through arbitrary metadata.

@@ -6,19 +6,16 @@ package com.azure.containers.containerregistry.implementation.models;
 
 import com.azure.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import java.util.ArrayList;
 import java.util.List;
 
 /** List of manifest attributes. */
-@JacksonXmlRootElement(localName = "ManifestAttributesManifest")
 @Fluent
 public final class ManifestAttributesManifest {
     /*
      * List of manifest attributes details
      */
-    @JsonProperty("ManifestAttributesManifestReferences")
-    private List<ManifestAttributesManifestReferences> references = new ArrayList<>();
+    @JsonProperty(value = "references")
+    private List<ManifestAttributesManifestReferences> references;
 
     /*
      * Quarantine tag name

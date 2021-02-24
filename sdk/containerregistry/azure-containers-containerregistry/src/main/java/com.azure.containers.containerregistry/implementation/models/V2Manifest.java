@@ -6,12 +6,9 @@ package com.azure.containers.containerregistry.implementation.models;
 
 import com.azure.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import java.util.ArrayList;
 import java.util.List;
 
 /** Returns the requested Docker V2 Manifest file. */
-@JacksonXmlRootElement(localName = "V2Manifest")
 @Fluent
 public final class V2Manifest extends Manifest {
     /*
@@ -29,8 +26,8 @@ public final class V2Manifest extends Manifest {
     /*
      * List of V2 image layer information
      */
-    @JsonProperty("Descriptor")
-    private List<Descriptor> layers = new ArrayList<>();
+    @JsonProperty(value = "layers")
+    private List<Descriptor> layers;
 
     /**
      * Get the mediaType property: Media type for this Manifest.

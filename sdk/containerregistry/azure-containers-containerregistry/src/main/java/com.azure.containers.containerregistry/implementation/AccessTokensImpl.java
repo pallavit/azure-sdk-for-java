@@ -22,6 +22,7 @@ import com.azure.core.annotation.UnexpectedResponseExceptionType;
 import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.util.Context;
+import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
 
 /** An instance of this class provides access to all the operations defined in AccessTokens. */
@@ -76,6 +77,22 @@ public final class AccessTokensImpl {
      * Exchange ACR Refresh token for an ACR Access Token.
      *
      * @param refreshToken The refreshToken parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<AccessToken>> getWithResponseAsync(
+            PathsV3R3RxOauth2TokenPostRequestbodyContentApplicationXWwwFormUrlencodedSchema refreshToken) {
+        final String accept = "application/json";
+        return FluxUtil.withContext(context -> service.get(this.client.getUrl(), refreshToken, accept, context));
+    }
+
+    /**
+     * Exchange ACR Refresh token for an ACR Access Token.
+     *
+     * @param refreshToken The refreshToken parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws AcrErrorsException thrown if the request is rejected by server.
@@ -88,6 +105,104 @@ public final class AccessTokensImpl {
             Context context) {
         final String accept = "application/json";
         return service.get(this.client.getUrl(), refreshToken, accept, context);
+    }
+
+    /**
+     * Exchange ACR Refresh token for an ACR Access Token.
+     *
+     * @param refreshToken The refreshToken parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<AccessToken> getAsync(
+            PathsV3R3RxOauth2TokenPostRequestbodyContentApplicationXWwwFormUrlencodedSchema refreshToken) {
+        return getWithResponseAsync(refreshToken)
+                .flatMap(
+                        (Response<AccessToken> res) -> {
+                            if (res.getValue() != null) {
+                                return Mono.just(res.getValue());
+                            } else {
+                                return Mono.empty();
+                            }
+                        });
+    }
+
+    /**
+     * Exchange ACR Refresh token for an ACR Access Token.
+     *
+     * @param refreshToken The refreshToken parameter.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<AccessToken> getAsync(
+            PathsV3R3RxOauth2TokenPostRequestbodyContentApplicationXWwwFormUrlencodedSchema refreshToken,
+            Context context) {
+        return getWithResponseAsync(refreshToken, context)
+                .flatMap(
+                        (Response<AccessToken> res) -> {
+                            if (res.getValue() != null) {
+                                return Mono.just(res.getValue());
+                            } else {
+                                return Mono.empty();
+                            }
+                        });
+    }
+
+    /**
+     * Exchange ACR Refresh token for an ACR Access Token.
+     *
+     * @param refreshToken The refreshToken parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public AccessToken get(
+            PathsV3R3RxOauth2TokenPostRequestbodyContentApplicationXWwwFormUrlencodedSchema refreshToken) {
+        return getAsync(refreshToken).block();
+    }
+
+    /**
+     * Exchange ACR Refresh token for an ACR Access Token.
+     *
+     * @param refreshToken The refreshToken parameter.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<AccessToken> getWithResponse(
+            PathsV3R3RxOauth2TokenPostRequestbodyContentApplicationXWwwFormUrlencodedSchema refreshToken,
+            Context context) {
+        return getWithResponseAsync(refreshToken, context).block();
+    }
+
+    /**
+     * Exchange Username, Password and Scope an ACR Access Token.
+     *
+     * @param serviceParam Indicates the name of your Azure container registry.
+     * @param scope Expected to be a valid scope, and can be specified more than once for multiple scope requests. You
+     *     can obtain this from the Www-Authenticate response header from the challenge.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<AccessToken>> getFromLoginWithResponseAsync(String serviceParam, String scope) {
+        final String accept = "application/json";
+        return FluxUtil.withContext(
+                context -> service.getFromLogin(this.client.getUrl(), serviceParam, scope, accept, context));
     }
 
     /**
@@ -107,5 +222,87 @@ public final class AccessTokensImpl {
             String serviceParam, String scope, Context context) {
         final String accept = "application/json";
         return service.getFromLogin(this.client.getUrl(), serviceParam, scope, accept, context);
+    }
+
+    /**
+     * Exchange Username, Password and Scope an ACR Access Token.
+     *
+     * @param serviceParam Indicates the name of your Azure container registry.
+     * @param scope Expected to be a valid scope, and can be specified more than once for multiple scope requests. You
+     *     can obtain this from the Www-Authenticate response header from the challenge.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<AccessToken> getFromLoginAsync(String serviceParam, String scope) {
+        return getFromLoginWithResponseAsync(serviceParam, scope)
+                .flatMap(
+                        (Response<AccessToken> res) -> {
+                            if (res.getValue() != null) {
+                                return Mono.just(res.getValue());
+                            } else {
+                                return Mono.empty();
+                            }
+                        });
+    }
+
+    /**
+     * Exchange Username, Password and Scope an ACR Access Token.
+     *
+     * @param serviceParam Indicates the name of your Azure container registry.
+     * @param scope Expected to be a valid scope, and can be specified more than once for multiple scope requests. You
+     *     can obtain this from the Www-Authenticate response header from the challenge.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<AccessToken> getFromLoginAsync(String serviceParam, String scope, Context context) {
+        return getFromLoginWithResponseAsync(serviceParam, scope, context)
+                .flatMap(
+                        (Response<AccessToken> res) -> {
+                            if (res.getValue() != null) {
+                                return Mono.just(res.getValue());
+                            } else {
+                                return Mono.empty();
+                            }
+                        });
+    }
+
+    /**
+     * Exchange Username, Password and Scope an ACR Access Token.
+     *
+     * @param serviceParam Indicates the name of your Azure container registry.
+     * @param scope Expected to be a valid scope, and can be specified more than once for multiple scope requests. You
+     *     can obtain this from the Www-Authenticate response header from the challenge.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public AccessToken getFromLogin(String serviceParam, String scope) {
+        return getFromLoginAsync(serviceParam, scope).block();
+    }
+
+    /**
+     * Exchange Username, Password and Scope an ACR Access Token.
+     *
+     * @param serviceParam Indicates the name of your Azure container registry.
+     * @param scope Expected to be a valid scope, and can be specified more than once for multiple scope requests. You
+     *     can obtain this from the Www-Authenticate response header from the challenge.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<AccessToken> getFromLoginWithResponse(String serviceParam, String scope, Context context) {
+        return getFromLoginWithResponseAsync(serviceParam, scope, context).block();
     }
 }

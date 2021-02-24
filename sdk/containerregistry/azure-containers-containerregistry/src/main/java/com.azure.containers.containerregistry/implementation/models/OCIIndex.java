@@ -6,19 +6,16 @@ package com.azure.containers.containerregistry.implementation.models;
 
 import com.azure.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import java.util.ArrayList;
 import java.util.List;
 
 /** Returns the requested OCI index file. */
-@JacksonXmlRootElement(localName = "OCIIndex")
 @Fluent
 public final class OCIIndex extends Manifest {
     /*
      * List of OCI image layer information
      */
-    @JsonProperty("ManifestListAttributes")
-    private List<ManifestListAttributes> manifests = new ArrayList<>();
+    @JsonProperty(value = "manifests")
+    private List<ManifestListAttributes> manifests;
 
     /*
      * Additional information provided through arbitrary metadata.

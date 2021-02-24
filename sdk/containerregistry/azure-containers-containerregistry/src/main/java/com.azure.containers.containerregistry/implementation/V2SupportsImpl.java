@@ -17,6 +17,7 @@ import com.azure.core.annotation.UnexpectedResponseExceptionType;
 import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.util.Context;
+import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
 
 /** An instance of this class provides access to all the operations defined in V2Supports. */
@@ -54,6 +55,19 @@ public final class V2SupportsImpl {
     /**
      * Tells whether this Docker Registry instance supports Docker Registry HTTP API v2.
      *
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> checkWithResponseAsync() {
+        final String accept = "application/json";
+        return FluxUtil.withContext(context -> service.check(this.client.getUrl(), accept, context));
+    }
+
+    /**
+     * Tells whether this Docker Registry instance supports Docker Registry HTTP API v2.
+     *
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws AcrErrorsException thrown if the request is rejected by server.
@@ -64,5 +78,56 @@ public final class V2SupportsImpl {
     public Mono<Response<Void>> checkWithResponseAsync(Context context) {
         final String accept = "application/json";
         return service.check(this.client.getUrl(), accept, context);
+    }
+
+    /**
+     * Tells whether this Docker Registry instance supports Docker Registry HTTP API v2.
+     *
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> checkAsync() {
+        return checkWithResponseAsync().flatMap((Response<Void> res) -> Mono.empty());
+    }
+
+    /**
+     * Tells whether this Docker Registry instance supports Docker Registry HTTP API v2.
+     *
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> checkAsync(Context context) {
+        return checkWithResponseAsync(context).flatMap((Response<Void> res) -> Mono.empty());
+    }
+
+    /**
+     * Tells whether this Docker Registry instance supports Docker Registry HTTP API v2.
+     *
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void check() {
+        checkAsync().block();
+    }
+
+    /**
+     * Tells whether this Docker Registry instance supports Docker Registry HTTP API v2.
+     *
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> checkWithResponse(Context context) {
+        return checkWithResponseAsync(context).block();
     }
 }

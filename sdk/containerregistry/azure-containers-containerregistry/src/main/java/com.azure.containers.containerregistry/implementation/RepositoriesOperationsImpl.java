@@ -7,6 +7,7 @@ package com.azure.containers.containerregistry.implementation;
 import com.azure.containers.containerregistry.implementation.models.AcrErrorsException;
 import com.azure.containers.containerregistry.implementation.models.ChangeableAttributes;
 import com.azure.containers.containerregistry.implementation.models.DeletedRepository;
+import com.azure.containers.containerregistry.implementation.models.Repositories;
 import com.azure.containers.containerregistry.implementation.models.RepositoriesGetListResponse;
 import com.azure.containers.containerregistry.implementation.models.RepositoryAttributes;
 import com.azure.core.annotation.BodyParam;
@@ -26,6 +27,7 @@ import com.azure.core.annotation.UnexpectedResponseExceptionType;
 import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.util.Context;
+import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
 
 /** An instance of this class provides access to all the operations defined in RepositoriesOperations. */
@@ -99,6 +101,23 @@ public final class RepositoriesOperationsImpl {
      * @param last Query parameter for the last item in previous query. Result set will include values lexically after
      *     last.
      * @param n query parameter for max number of items.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return list of repositories.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<RepositoriesGetListResponse> getListWithResponseAsync(String last, Integer n) {
+        final String accept = "application/json";
+        return FluxUtil.withContext(context -> service.getList(this.client.getUrl(), last, n, accept, context));
+    }
+
+    /**
+     * List repositories.
+     *
+     * @param last Query parameter for the last item in previous query. Result set will include values lexically after
+     *     last.
+     * @param n query parameter for max number of items.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws AcrErrorsException thrown if the request is rejected by server.
@@ -109,6 +128,103 @@ public final class RepositoriesOperationsImpl {
     public Mono<RepositoriesGetListResponse> getListWithResponseAsync(String last, Integer n, Context context) {
         final String accept = "application/json";
         return service.getList(this.client.getUrl(), last, n, accept, context);
+    }
+
+    /**
+     * List repositories.
+     *
+     * @param last Query parameter for the last item in previous query. Result set will include values lexically after
+     *     last.
+     * @param n query parameter for max number of items.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return list of repositories.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Repositories> getListAsync(String last, Integer n) {
+        return getListWithResponseAsync(last, n)
+                .flatMap(
+                        (RepositoriesGetListResponse res) -> {
+                            if (res.getValue() != null) {
+                                return Mono.just(res.getValue());
+                            } else {
+                                return Mono.empty();
+                            }
+                        });
+    }
+
+    /**
+     * List repositories.
+     *
+     * @param last Query parameter for the last item in previous query. Result set will include values lexically after
+     *     last.
+     * @param n query parameter for max number of items.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return list of repositories.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Repositories> getListAsync(String last, Integer n, Context context) {
+        return getListWithResponseAsync(last, n, context)
+                .flatMap(
+                        (RepositoriesGetListResponse res) -> {
+                            if (res.getValue() != null) {
+                                return Mono.just(res.getValue());
+                            } else {
+                                return Mono.empty();
+                            }
+                        });
+    }
+
+    /**
+     * List repositories.
+     *
+     * @param last Query parameter for the last item in previous query. Result set will include values lexically after
+     *     last.
+     * @param n query parameter for max number of items.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return list of repositories.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Repositories getList(String last, Integer n) {
+        return getListAsync(last, n).block();
+    }
+
+    /**
+     * List repositories.
+     *
+     * @param last Query parameter for the last item in previous query. Result set will include values lexically after
+     *     last.
+     * @param n query parameter for max number of items.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return list of repositories.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Repositories> getListWithResponse(String last, Integer n, Context context) {
+        return getListWithResponseAsync(last, n, context).block();
+    }
+
+    /**
+     * Get repository attributes.
+     *
+     * @param name Name of the image (including the namespace).
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return repository attributes.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<RepositoryAttributes>> getAttributesWithResponseAsync(String name) {
+        final String accept = "application/json";
+        return FluxUtil.withContext(context -> service.getAttributes(this.client.getUrl(), name, accept, context));
     }
 
     /**
@@ -128,6 +244,95 @@ public final class RepositoriesOperationsImpl {
     }
 
     /**
+     * Get repository attributes.
+     *
+     * @param name Name of the image (including the namespace).
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return repository attributes.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<RepositoryAttributes> getAttributesAsync(String name) {
+        return getAttributesWithResponseAsync(name)
+                .flatMap(
+                        (Response<RepositoryAttributes> res) -> {
+                            if (res.getValue() != null) {
+                                return Mono.just(res.getValue());
+                            } else {
+                                return Mono.empty();
+                            }
+                        });
+    }
+
+    /**
+     * Get repository attributes.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return repository attributes.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<RepositoryAttributes> getAttributesAsync(String name, Context context) {
+        return getAttributesWithResponseAsync(name, context)
+                .flatMap(
+                        (Response<RepositoryAttributes> res) -> {
+                            if (res.getValue() != null) {
+                                return Mono.just(res.getValue());
+                            } else {
+                                return Mono.empty();
+                            }
+                        });
+    }
+
+    /**
+     * Get repository attributes.
+     *
+     * @param name Name of the image (including the namespace).
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return repository attributes.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public RepositoryAttributes getAttributes(String name) {
+        return getAttributesAsync(name).block();
+    }
+
+    /**
+     * Get repository attributes.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return repository attributes.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<RepositoryAttributes> getAttributesWithResponse(String name, Context context) {
+        return getAttributesWithResponseAsync(name, context).block();
+    }
+
+    /**
+     * Delete the repository identified by `name`.
+     *
+     * @param name Name of the image (including the namespace).
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return deleted repository.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<DeletedRepository>> deleteWithResponseAsync(String name) {
+        final String accept = "application/json";
+        return FluxUtil.withContext(context -> service.delete(this.client.getUrl(), name, accept, context));
+    }
+
+    /**
      * Delete the repository identified by `name`.
      *
      * @param name Name of the image (including the namespace).
@@ -141,6 +346,97 @@ public final class RepositoriesOperationsImpl {
     public Mono<Response<DeletedRepository>> deleteWithResponseAsync(String name, Context context) {
         final String accept = "application/json";
         return service.delete(this.client.getUrl(), name, accept, context);
+    }
+
+    /**
+     * Delete the repository identified by `name`.
+     *
+     * @param name Name of the image (including the namespace).
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return deleted repository.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<DeletedRepository> deleteAsync(String name) {
+        return deleteWithResponseAsync(name)
+                .flatMap(
+                        (Response<DeletedRepository> res) -> {
+                            if (res.getValue() != null) {
+                                return Mono.just(res.getValue());
+                            } else {
+                                return Mono.empty();
+                            }
+                        });
+    }
+
+    /**
+     * Delete the repository identified by `name`.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return deleted repository.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<DeletedRepository> deleteAsync(String name, Context context) {
+        return deleteWithResponseAsync(name, context)
+                .flatMap(
+                        (Response<DeletedRepository> res) -> {
+                            if (res.getValue() != null) {
+                                return Mono.just(res.getValue());
+                            } else {
+                                return Mono.empty();
+                            }
+                        });
+    }
+
+    /**
+     * Delete the repository identified by `name`.
+     *
+     * @param name Name of the image (including the namespace).
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return deleted repository.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public DeletedRepository delete(String name) {
+        return deleteAsync(name).block();
+    }
+
+    /**
+     * Delete the repository identified by `name`.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return deleted repository.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<DeletedRepository> deleteWithResponse(String name, Context context) {
+        return deleteWithResponseAsync(name, context).block();
+    }
+
+    /**
+     * Update the attribute identified by `name` where `reference` is the name of the repository.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param value Repository attribute value.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> updateAttributesWithResponseAsync(String name, ChangeableAttributes value) {
+        final String accept = "application/json";
+        return FluxUtil.withContext(
+                context -> service.updateAttributes(this.client.getUrl(), name, value, accept, context));
     }
 
     /**
@@ -159,5 +455,66 @@ public final class RepositoriesOperationsImpl {
             String name, ChangeableAttributes value, Context context) {
         final String accept = "application/json";
         return service.updateAttributes(this.client.getUrl(), name, value, accept, context);
+    }
+
+    /**
+     * Update the attribute identified by `name` where `reference` is the name of the repository.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param value Repository attribute value.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> updateAttributesAsync(String name, ChangeableAttributes value) {
+        return updateAttributesWithResponseAsync(name, value).flatMap((Response<Void> res) -> Mono.empty());
+    }
+
+    /**
+     * Update the attribute identified by `name` where `reference` is the name of the repository.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param value Repository attribute value.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> updateAttributesAsync(String name, ChangeableAttributes value, Context context) {
+        return updateAttributesWithResponseAsync(name, value, context).flatMap((Response<Void> res) -> Mono.empty());
+    }
+
+    /**
+     * Update the attribute identified by `name` where `reference` is the name of the repository.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param value Repository attribute value.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void updateAttributes(String name, ChangeableAttributes value) {
+        updateAttributesAsync(name, value).block();
+    }
+
+    /**
+     * Update the attribute identified by `name` where `reference` is the name of the repository.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param value Repository attribute value.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> updateAttributesWithResponse(String name, ChangeableAttributes value, Context context) {
+        return updateAttributesWithResponseAsync(name, value, context).block();
     }
 }

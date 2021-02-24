@@ -6,12 +6,9 @@ package com.azure.containers.containerregistry.implementation.models;
 
 import com.azure.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import java.util.ArrayList;
 import java.util.List;
 
 /** List of tag details. */
-@JacksonXmlRootElement(localName = "TagList")
 @Fluent
 public final class TagList {
     /*
@@ -29,8 +26,8 @@ public final class TagList {
     /*
      * List of tag attribute details
      */
-    @JsonProperty("TagAttributesBase")
-    private List<TagAttributesBase> tags = new ArrayList<>();
+    @JsonProperty(value = "tags")
+    private List<TagAttributesBase> tags;
 
     /**
      * Get the registry property: Registry name.

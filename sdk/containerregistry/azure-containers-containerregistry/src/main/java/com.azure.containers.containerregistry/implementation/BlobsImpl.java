@@ -34,7 +34,13 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.http.rest.StreamResponse;
 import com.azure.core.util.Context;
+import com.azure.core.util.FluxUtil;
+import com.fasterxml.jackson.databind.util.ByteBufferBackedInputStream;
+import java.io.InputStream;
+import java.io.SequenceInputStream;
 import java.nio.ByteBuffer;
+import java.util.Enumeration;
+import java.util.Iterator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -182,6 +188,22 @@ public final class BlobsImpl {
      *
      * @param name Name of the image (including the namespace).
      * @param digest Digest of a BLOB.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<StreamResponse> getWithResponseAsync(String name, String digest) {
+        final String accept = "application/octet-stream";
+        return FluxUtil.withContext(context -> service.get(this.client.getUrl(), name, digest, accept, context));
+    }
+
+    /**
+     * Retrieve the blob from the registry identified by digest.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -192,6 +214,98 @@ public final class BlobsImpl {
     public Mono<StreamResponse> getWithResponseAsync(String name, String digest, Context context) {
         final String accept = "application/octet-stream";
         return service.get(this.client.getUrl(), name, digest, accept, context);
+    }
+
+    /**
+     * Retrieve the blob from the registry identified by digest.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Flux<ByteBuffer> getAsync(String name, String digest) {
+        return getWithResponseAsync(name, digest).flatMapMany(StreamResponse::getValue);
+    }
+
+    /**
+     * Retrieve the blob from the registry identified by digest.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Flux<ByteBuffer> getAsync(String name, String digest, Context context) {
+        return getWithResponseAsync(name, digest, context).flatMapMany(StreamResponse::getValue);
+    }
+
+    /**
+     * Retrieve the blob from the registry identified by digest.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public InputStream get(String name, String digest) {
+        Iterator<ByteBufferBackedInputStream> iterator =
+                getAsync(name, digest).map(ByteBufferBackedInputStream::new).toStream().iterator();
+        Enumeration<InputStream> enumeration =
+                new Enumeration<InputStream>() {
+                    @Override
+                    public boolean hasMoreElements() {
+                        return iterator.hasNext();
+                    }
+
+                    @Override
+                    public InputStream nextElement() {
+                        return iterator.next();
+                    }
+                };
+        return new SequenceInputStream(enumeration);
+    }
+
+    /**
+     * Retrieve the blob from the registry identified by digest.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public StreamResponse getWithResponse(String name, String digest, Context context) {
+        return getWithResponseAsync(name, digest, context).block();
+    }
+
+    /**
+     * Same as GET, except only the headers are returned.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<BlobsCheckResponse> checkWithResponseAsync(String name, String digest) {
+        final String accept = "application/json";
+        return FluxUtil.withContext(context -> service.check(this.client.getUrl(), name, digest, accept, context));
     }
 
     /**
@@ -212,6 +326,83 @@ public final class BlobsImpl {
     }
 
     /**
+     * Same as GET, except only the headers are returned.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> checkAsync(String name, String digest) {
+        return checkWithResponseAsync(name, digest).flatMap((BlobsCheckResponse res) -> Mono.empty());
+    }
+
+    /**
+     * Same as GET, except only the headers are returned.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> checkAsync(String name, String digest, Context context) {
+        return checkWithResponseAsync(name, digest, context).flatMap((BlobsCheckResponse res) -> Mono.empty());
+    }
+
+    /**
+     * Same as GET, except only the headers are returned.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void check(String name, String digest) {
+        checkAsync(name, digest).block();
+    }
+
+    /**
+     * Same as GET, except only the headers are returned.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> checkWithResponse(String name, String digest, Context context) {
+        return checkWithResponseAsync(name, digest, context).block();
+    }
+
+    /**
+     * Removes an already uploaded blob.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<StreamResponse> deleteWithResponseAsync(String name, String digest) {
+        final String accept = "application/octet-stream";
+        return FluxUtil.withContext(context -> service.delete(this.client.getUrl(), name, digest, accept, context));
+    }
+
+    /**
      * Removes an already uploaded blob.
      *
      * @param name Name of the image (including the namespace).
@@ -226,6 +417,99 @@ public final class BlobsImpl {
     public Mono<StreamResponse> deleteWithResponseAsync(String name, String digest, Context context) {
         final String accept = "application/octet-stream";
         return service.delete(this.client.getUrl(), name, digest, accept, context);
+    }
+
+    /**
+     * Removes an already uploaded blob.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Flux<ByteBuffer> deleteAsync(String name, String digest) {
+        return deleteWithResponseAsync(name, digest).flatMapMany(StreamResponse::getValue);
+    }
+
+    /**
+     * Removes an already uploaded blob.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Flux<ByteBuffer> deleteAsync(String name, String digest, Context context) {
+        return deleteWithResponseAsync(name, digest, context).flatMapMany(StreamResponse::getValue);
+    }
+
+    /**
+     * Removes an already uploaded blob.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public InputStream delete(String name, String digest) {
+        Iterator<ByteBufferBackedInputStream> iterator =
+                deleteAsync(name, digest).map(ByteBufferBackedInputStream::new).toStream().iterator();
+        Enumeration<InputStream> enumeration =
+                new Enumeration<InputStream>() {
+                    @Override
+                    public boolean hasMoreElements() {
+                        return iterator.hasNext();
+                    }
+
+                    @Override
+                    public InputStream nextElement() {
+                        return iterator.next();
+                    }
+                };
+        return new SequenceInputStream(enumeration);
+    }
+
+    /**
+     * Removes an already uploaded blob.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public StreamResponse deleteWithResponse(String name, String digest, Context context) {
+        return deleteWithResponseAsync(name, digest, context).block();
+    }
+
+    /**
+     * Mount a blob identified by the `mount` parameter from another repository.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param from Name of the source repository.
+     * @param mount Digest of blob to mount from the source repository.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<BlobsMountResponse> mountWithResponseAsync(String name, String from, String mount) {
+        final String accept = "application/json";
+        return FluxUtil.withContext(context -> service.mount(this.client.getUrl(), name, from, mount, accept, context));
     }
 
     /**
@@ -247,6 +531,88 @@ public final class BlobsImpl {
     }
 
     /**
+     * Mount a blob identified by the `mount` parameter from another repository.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param from Name of the source repository.
+     * @param mount Digest of blob to mount from the source repository.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> mountAsync(String name, String from, String mount) {
+        return mountWithResponseAsync(name, from, mount).flatMap((BlobsMountResponse res) -> Mono.empty());
+    }
+
+    /**
+     * Mount a blob identified by the `mount` parameter from another repository.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param from Name of the source repository.
+     * @param mount Digest of blob to mount from the source repository.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> mountAsync(String name, String from, String mount, Context context) {
+        return mountWithResponseAsync(name, from, mount, context).flatMap((BlobsMountResponse res) -> Mono.empty());
+    }
+
+    /**
+     * Mount a blob identified by the `mount` parameter from another repository.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param from Name of the source repository.
+     * @param mount Digest of blob to mount from the source repository.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void mount(String name, String from, String mount) {
+        mountAsync(name, from, mount).block();
+    }
+
+    /**
+     * Mount a blob identified by the `mount` parameter from another repository.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param from Name of the source repository.
+     * @param mount Digest of blob to mount from the source repository.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> mountWithResponse(String name, String from, String mount, Context context) {
+        return mountWithResponseAsync(name, from, mount, context).block();
+    }
+
+    /**
+     * Retrieve status of upload identified by uuid. The primary purpose of this endpoint is to resolve the current
+     * status of a resumable upload.
+     *
+     * @param location Link acquired from upload start or previous chunk. Note, do not include initial / (must do
+     *     substring(1) ).
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<BlobsGetStatusResponse> getStatusWithResponseAsync(String location) {
+        final String accept = "application/json";
+        return FluxUtil.withContext(context -> service.getStatus(this.client.getUrl(), location, accept, context));
+    }
+
+    /**
      * Retrieve status of upload identified by uuid. The primary purpose of this endpoint is to resolve the current
      * status of a resumable upload.
      *
@@ -262,6 +628,91 @@ public final class BlobsImpl {
     public Mono<BlobsGetStatusResponse> getStatusWithResponseAsync(String location, Context context) {
         final String accept = "application/json";
         return service.getStatus(this.client.getUrl(), location, accept, context);
+    }
+
+    /**
+     * Retrieve status of upload identified by uuid. The primary purpose of this endpoint is to resolve the current
+     * status of a resumable upload.
+     *
+     * @param location Link acquired from upload start or previous chunk. Note, do not include initial / (must do
+     *     substring(1) ).
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> getStatusAsync(String location) {
+        return getStatusWithResponseAsync(location).flatMap((BlobsGetStatusResponse res) -> Mono.empty());
+    }
+
+    /**
+     * Retrieve status of upload identified by uuid. The primary purpose of this endpoint is to resolve the current
+     * status of a resumable upload.
+     *
+     * @param location Link acquired from upload start or previous chunk. Note, do not include initial / (must do
+     *     substring(1) ).
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> getStatusAsync(String location, Context context) {
+        return getStatusWithResponseAsync(location, context).flatMap((BlobsGetStatusResponse res) -> Mono.empty());
+    }
+
+    /**
+     * Retrieve status of upload identified by uuid. The primary purpose of this endpoint is to resolve the current
+     * status of a resumable upload.
+     *
+     * @param location Link acquired from upload start or previous chunk. Note, do not include initial / (must do
+     *     substring(1) ).
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void getStatus(String location) {
+        getStatusAsync(location).block();
+    }
+
+    /**
+     * Retrieve status of upload identified by uuid. The primary purpose of this endpoint is to resolve the current
+     * status of a resumable upload.
+     *
+     * @param location Link acquired from upload start or previous chunk. Note, do not include initial / (must do
+     *     substring(1) ).
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> getStatusWithResponse(String location, Context context) {
+        return getStatusWithResponseAsync(location, context).block();
+    }
+
+    /**
+     * Upload a stream of data without completing the upload.
+     *
+     * @param location Link acquired from upload start or previous chunk. Note, do not include initial / (must do
+     *     substring(1) ).
+     * @param value Raw data of blob.
+     * @param contentLength The contentLength parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<BlobsUploadResponse> uploadWithResponseAsync(
+            String location, Flux<ByteBuffer> value, long contentLength) {
+        final String accept = "application/json";
+        return FluxUtil.withContext(
+                context -> service.upload(this.client.getUrl(), location, value, contentLength, accept, context));
     }
 
     /**
@@ -282,6 +733,102 @@ public final class BlobsImpl {
             String location, Flux<ByteBuffer> value, long contentLength, Context context) {
         final String accept = "application/json";
         return service.upload(this.client.getUrl(), location, value, contentLength, accept, context);
+    }
+
+    /**
+     * Upload a stream of data without completing the upload.
+     *
+     * @param location Link acquired from upload start or previous chunk. Note, do not include initial / (must do
+     *     substring(1) ).
+     * @param value Raw data of blob.
+     * @param contentLength The contentLength parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> uploadAsync(String location, Flux<ByteBuffer> value, long contentLength) {
+        return uploadWithResponseAsync(location, value, contentLength)
+                .flatMap((BlobsUploadResponse res) -> Mono.empty());
+    }
+
+    /**
+     * Upload a stream of data without completing the upload.
+     *
+     * @param location Link acquired from upload start or previous chunk. Note, do not include initial / (must do
+     *     substring(1) ).
+     * @param value Raw data of blob.
+     * @param contentLength The contentLength parameter.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> uploadAsync(String location, Flux<ByteBuffer> value, long contentLength, Context context) {
+        return uploadWithResponseAsync(location, value, contentLength, context)
+                .flatMap((BlobsUploadResponse res) -> Mono.empty());
+    }
+
+    /**
+     * Upload a stream of data without completing the upload.
+     *
+     * @param location Link acquired from upload start or previous chunk. Note, do not include initial / (must do
+     *     substring(1) ).
+     * @param value Raw data of blob.
+     * @param contentLength The contentLength parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void upload(String location, Flux<ByteBuffer> value, long contentLength) {
+        uploadAsync(location, value, contentLength).block();
+    }
+
+    /**
+     * Upload a stream of data without completing the upload.
+     *
+     * @param location Link acquired from upload start or previous chunk. Note, do not include initial / (must do
+     *     substring(1) ).
+     * @param value Raw data of blob.
+     * @param contentLength The contentLength parameter.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> uploadWithResponse(
+            String location, Flux<ByteBuffer> value, long contentLength, Context context) {
+        return uploadWithResponseAsync(location, value, contentLength, context).block();
+    }
+
+    /**
+     * Complete the upload, providing all the data in the body, if necessary. A request without a body will just
+     * complete the upload with previously uploaded content.
+     *
+     * @param digest Digest of a BLOB.
+     * @param location Link acquired from upload start or previous chunk. Note, do not include initial / (must do
+     *     substring(1) ).
+     * @param value Optional raw data of blob.
+     * @param contentLength The contentLength parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<BlobsEndUploadResponse> endUploadWithResponseAsync(
+            String digest, String location, Flux<ByteBuffer> value, long contentLength) {
+        final String accept = "application/json";
+        return FluxUtil.withContext(
+                context ->
+                        service.endUpload(
+                                this.client.getUrl(), digest, location, value, contentLength, accept, context));
     }
 
     /**
@@ -307,6 +854,104 @@ public final class BlobsImpl {
     }
 
     /**
+     * Complete the upload, providing all the data in the body, if necessary. A request without a body will just
+     * complete the upload with previously uploaded content.
+     *
+     * @param digest Digest of a BLOB.
+     * @param location Link acquired from upload start or previous chunk. Note, do not include initial / (must do
+     *     substring(1) ).
+     * @param value Optional raw data of blob.
+     * @param contentLength The contentLength parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> endUploadAsync(String digest, String location, Flux<ByteBuffer> value, long contentLength) {
+        return endUploadWithResponseAsync(digest, location, value, contentLength)
+                .flatMap((BlobsEndUploadResponse res) -> Mono.empty());
+    }
+
+    /**
+     * Complete the upload, providing all the data in the body, if necessary. A request without a body will just
+     * complete the upload with previously uploaded content.
+     *
+     * @param digest Digest of a BLOB.
+     * @param location Link acquired from upload start or previous chunk. Note, do not include initial / (must do
+     *     substring(1) ).
+     * @param value Optional raw data of blob.
+     * @param contentLength The contentLength parameter.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> endUploadAsync(
+            String digest, String location, Flux<ByteBuffer> value, long contentLength, Context context) {
+        return endUploadWithResponseAsync(digest, location, value, contentLength, context)
+                .flatMap((BlobsEndUploadResponse res) -> Mono.empty());
+    }
+
+    /**
+     * Complete the upload, providing all the data in the body, if necessary. A request without a body will just
+     * complete the upload with previously uploaded content.
+     *
+     * @param digest Digest of a BLOB.
+     * @param location Link acquired from upload start or previous chunk. Note, do not include initial / (must do
+     *     substring(1) ).
+     * @param value Optional raw data of blob.
+     * @param contentLength The contentLength parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void endUpload(String digest, String location, Flux<ByteBuffer> value, long contentLength) {
+        endUploadAsync(digest, location, value, contentLength).block();
+    }
+
+    /**
+     * Complete the upload, providing all the data in the body, if necessary. A request without a body will just
+     * complete the upload with previously uploaded content.
+     *
+     * @param digest Digest of a BLOB.
+     * @param location Link acquired from upload start or previous chunk. Note, do not include initial / (must do
+     *     substring(1) ).
+     * @param value Optional raw data of blob.
+     * @param contentLength The contentLength parameter.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> endUploadWithResponse(
+            String digest, String location, Flux<ByteBuffer> value, long contentLength, Context context) {
+        return endUploadWithResponseAsync(digest, location, value, contentLength, context).block();
+    }
+
+    /**
+     * Cancel outstanding upload processes, releasing associated resources. If this is not called, the unfinished
+     * uploads will eventually timeout.
+     *
+     * @param location Link acquired from upload start or previous chunk. Note, do not include initial / (must do
+     *     substring(1) ).
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> cancelUploadWithResponseAsync(String location) {
+        final String accept = "application/json";
+        return FluxUtil.withContext(context -> service.cancelUpload(this.client.getUrl(), location, accept, context));
+    }
+
+    /**
      * Cancel outstanding upload processes, releasing associated resources. If this is not called, the unfinished
      * uploads will eventually timeout.
      *
@@ -325,6 +970,86 @@ public final class BlobsImpl {
     }
 
     /**
+     * Cancel outstanding upload processes, releasing associated resources. If this is not called, the unfinished
+     * uploads will eventually timeout.
+     *
+     * @param location Link acquired from upload start or previous chunk. Note, do not include initial / (must do
+     *     substring(1) ).
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> cancelUploadAsync(String location) {
+        return cancelUploadWithResponseAsync(location).flatMap((Response<Void> res) -> Mono.empty());
+    }
+
+    /**
+     * Cancel outstanding upload processes, releasing associated resources. If this is not called, the unfinished
+     * uploads will eventually timeout.
+     *
+     * @param location Link acquired from upload start or previous chunk. Note, do not include initial / (must do
+     *     substring(1) ).
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> cancelUploadAsync(String location, Context context) {
+        return cancelUploadWithResponseAsync(location, context).flatMap((Response<Void> res) -> Mono.empty());
+    }
+
+    /**
+     * Cancel outstanding upload processes, releasing associated resources. If this is not called, the unfinished
+     * uploads will eventually timeout.
+     *
+     * @param location Link acquired from upload start or previous chunk. Note, do not include initial / (must do
+     *     substring(1) ).
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void cancelUpload(String location) {
+        cancelUploadAsync(location).block();
+    }
+
+    /**
+     * Cancel outstanding upload processes, releasing associated resources. If this is not called, the unfinished
+     * uploads will eventually timeout.
+     *
+     * @param location Link acquired from upload start or previous chunk. Note, do not include initial / (must do
+     *     substring(1) ).
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> cancelUploadWithResponse(String location, Context context) {
+        return cancelUploadWithResponseAsync(location, context).block();
+    }
+
+    /**
+     * Initiate a resumable blob upload with an empty request body.
+     *
+     * @param name Name of the image (including the namespace).
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<BlobsStartUploadResponse> startUploadWithResponseAsync(String name) {
+        final String accept = "application/json";
+        return FluxUtil.withContext(context -> service.startUpload(this.client.getUrl(), name, accept, context));
+    }
+
+    /**
      * Initiate a resumable blob upload with an empty request body.
      *
      * @param name Name of the image (including the namespace).
@@ -338,6 +1063,83 @@ public final class BlobsImpl {
     public Mono<BlobsStartUploadResponse> startUploadWithResponseAsync(String name, Context context) {
         final String accept = "application/json";
         return service.startUpload(this.client.getUrl(), name, accept, context);
+    }
+
+    /**
+     * Initiate a resumable blob upload with an empty request body.
+     *
+     * @param name Name of the image (including the namespace).
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> startUploadAsync(String name) {
+        return startUploadWithResponseAsync(name).flatMap((BlobsStartUploadResponse res) -> Mono.empty());
+    }
+
+    /**
+     * Initiate a resumable blob upload with an empty request body.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> startUploadAsync(String name, Context context) {
+        return startUploadWithResponseAsync(name, context).flatMap((BlobsStartUploadResponse res) -> Mono.empty());
+    }
+
+    /**
+     * Initiate a resumable blob upload with an empty request body.
+     *
+     * @param name Name of the image (including the namespace).
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void startUpload(String name) {
+        startUploadAsync(name).block();
+    }
+
+    /**
+     * Initiate a resumable blob upload with an empty request body.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> startUploadWithResponse(String name, Context context) {
+        return startUploadWithResponseAsync(name, context).block();
+    }
+
+    /**
+     * Retrieve the blob from the registry identified by `digest`. This endpoint may also support RFC7233 compliant
+     * range requests. Support can be detected by issuing a HEAD request. If the header `Accept-Range: bytes` is
+     * returned, range requests can be used to fetch partial content.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @param range Format : bytes=&lt;start&gt;-&lt;end&gt;, HTTP Range header specifying blob chunk.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<StreamResponse> getChunkWithResponseAsync(String name, String digest, String range) {
+        final String accept = "application/octet-stream";
+        return FluxUtil.withContext(
+                context -> service.getChunk(this.client.getUrl(), name, digest, range, accept, context));
     }
 
     /**
@@ -361,6 +1163,112 @@ public final class BlobsImpl {
     }
 
     /**
+     * Retrieve the blob from the registry identified by `digest`. This endpoint may also support RFC7233 compliant
+     * range requests. Support can be detected by issuing a HEAD request. If the header `Accept-Range: bytes` is
+     * returned, range requests can be used to fetch partial content.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @param range Format : bytes=&lt;start&gt;-&lt;end&gt;, HTTP Range header specifying blob chunk.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Flux<ByteBuffer> getChunkAsync(String name, String digest, String range) {
+        return getChunkWithResponseAsync(name, digest, range).flatMapMany(StreamResponse::getValue);
+    }
+
+    /**
+     * Retrieve the blob from the registry identified by `digest`. This endpoint may also support RFC7233 compliant
+     * range requests. Support can be detected by issuing a HEAD request. If the header `Accept-Range: bytes` is
+     * returned, range requests can be used to fetch partial content.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @param range Format : bytes=&lt;start&gt;-&lt;end&gt;, HTTP Range header specifying blob chunk.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Flux<ByteBuffer> getChunkAsync(String name, String digest, String range, Context context) {
+        return getChunkWithResponseAsync(name, digest, range, context).flatMapMany(StreamResponse::getValue);
+    }
+
+    /**
+     * Retrieve the blob from the registry identified by `digest`. This endpoint may also support RFC7233 compliant
+     * range requests. Support can be detected by issuing a HEAD request. If the header `Accept-Range: bytes` is
+     * returned, range requests can be used to fetch partial content.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @param range Format : bytes=&lt;start&gt;-&lt;end&gt;, HTTP Range header specifying blob chunk.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public InputStream getChunk(String name, String digest, String range) {
+        Iterator<ByteBufferBackedInputStream> iterator =
+                getChunkAsync(name, digest, range).map(ByteBufferBackedInputStream::new).toStream().iterator();
+        Enumeration<InputStream> enumeration =
+                new Enumeration<InputStream>() {
+                    @Override
+                    public boolean hasMoreElements() {
+                        return iterator.hasNext();
+                    }
+
+                    @Override
+                    public InputStream nextElement() {
+                        return iterator.next();
+                    }
+                };
+        return new SequenceInputStream(enumeration);
+    }
+
+    /**
+     * Retrieve the blob from the registry identified by `digest`. This endpoint may also support RFC7233 compliant
+     * range requests. Support can be detected by issuing a HEAD request. If the header `Accept-Range: bytes` is
+     * returned, range requests can be used to fetch partial content.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @param range Format : bytes=&lt;start&gt;-&lt;end&gt;, HTTP Range header specifying blob chunk.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public StreamResponse getChunkWithResponse(String name, String digest, String range, Context context) {
+        return getChunkWithResponseAsync(name, digest, range, context).block();
+    }
+
+    /**
+     * Same as GET, except only the headers are returned.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @param range Format : bytes=&lt;start&gt;-&lt;end&gt;, HTTP Range header specifying blob chunk.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<BlobsCheckChunkResponse> checkChunkWithResponseAsync(String name, String digest, String range) {
+        final String accept = "application/json";
+        return FluxUtil.withContext(
+                context -> service.checkChunk(this.client.getUrl(), name, digest, range, accept, context));
+    }
+
+    /**
      * Same as GET, except only the headers are returned.
      *
      * @param name Name of the image (including the namespace).
@@ -377,5 +1285,71 @@ public final class BlobsImpl {
             String name, String digest, String range, Context context) {
         final String accept = "application/json";
         return service.checkChunk(this.client.getUrl(), name, digest, range, accept, context);
+    }
+
+    /**
+     * Same as GET, except only the headers are returned.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @param range Format : bytes=&lt;start&gt;-&lt;end&gt;, HTTP Range header specifying blob chunk.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> checkChunkAsync(String name, String digest, String range) {
+        return checkChunkWithResponseAsync(name, digest, range).flatMap((BlobsCheckChunkResponse res) -> Mono.empty());
+    }
+
+    /**
+     * Same as GET, except only the headers are returned.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @param range Format : bytes=&lt;start&gt;-&lt;end&gt;, HTTP Range header specifying blob chunk.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> checkChunkAsync(String name, String digest, String range, Context context) {
+        return checkChunkWithResponseAsync(name, digest, range, context)
+                .flatMap((BlobsCheckChunkResponse res) -> Mono.empty());
+    }
+
+    /**
+     * Same as GET, except only the headers are returned.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @param range Format : bytes=&lt;start&gt;-&lt;end&gt;, HTTP Range header specifying blob chunk.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void checkChunk(String name, String digest, String range) {
+        checkChunkAsync(name, digest, range).block();
+    }
+
+    /**
+     * Same as GET, except only the headers are returned.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param digest Digest of a BLOB.
+     * @param range Format : bytes=&lt;start&gt;-&lt;end&gt;, HTTP Range header specifying blob chunk.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> checkChunkWithResponse(String name, String digest, String range, Context context) {
+        return checkChunkWithResponseAsync(name, digest, range, context).block();
     }
 }

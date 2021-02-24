@@ -6,12 +6,9 @@ package com.azure.containers.containerregistry.implementation.models;
 
 import com.azure.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import java.util.ArrayList;
 import java.util.List;
 
 /** Returns the requested Docker multi-arch-manifest file. */
-@JacksonXmlRootElement(localName = "ManifestList")
 @Fluent
 public final class ManifestList extends Manifest {
     /*
@@ -23,8 +20,8 @@ public final class ManifestList extends Manifest {
     /*
      * List of V2 image layer information
      */
-    @JsonProperty("ManifestListAttributes")
-    private List<ManifestListAttributes> manifests = new ArrayList<>();
+    @JsonProperty(value = "manifests")
+    private List<ManifestListAttributes> manifests;
 
     /**
      * Get the mediaType property: Media type for this Manifest.

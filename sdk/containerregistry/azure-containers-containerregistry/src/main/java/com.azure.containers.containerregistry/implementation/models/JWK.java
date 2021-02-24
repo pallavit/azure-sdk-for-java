@@ -6,10 +6,8 @@ package com.azure.containers.containerregistry.implementation.models;
 
 import com.azure.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /** A JSON web signature. */
-@JacksonXmlRootElement(localName = "JWK")
 @Fluent
 public final class JWK {
     /*

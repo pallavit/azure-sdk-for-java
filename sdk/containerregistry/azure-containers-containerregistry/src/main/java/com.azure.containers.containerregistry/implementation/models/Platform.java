@@ -6,15 +6,12 @@ package com.azure.containers.containerregistry.implementation.models;
 
 import com.azure.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * The platform object describes the platform which the image in the manifest runs on. A full list of valid operating
  * system and architecture values are listed in the Go language documentation for $GOOS and $GOARCH.
  */
-@JacksonXmlRootElement(localName = "Platform")
 @Fluent
 public final class Platform {
     /*
@@ -41,8 +38,8 @@ public final class Platform {
      * The optional os.features field specifies an array of strings, each
      * listing a required OS feature (for example on Windows win32k
      */
-    @JsonProperty("PlatformOsFeaturesItem")
-    private List<String> osFeatures = new ArrayList<>();
+    @JsonProperty(value = "os.features")
+    private List<String> osFeatures;
 
     /*
      * The optional variant field specifies a variant of the CPU, for example
@@ -55,8 +52,8 @@ public final class Platform {
      * The optional features field specifies an array of strings, each listing
      * a required CPU feature (for example sse4 or aes
      */
-    @JsonProperty("PlatformFeaturesItem")
-    private List<String> features = new ArrayList<>();
+    @JsonProperty(value = "features")
+    private List<String> features;
 
     /**
      * Get the architecture property: Specifies the CPU architecture, for example amd64 or ppc64le.

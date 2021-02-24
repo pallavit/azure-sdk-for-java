@@ -6,25 +6,22 @@ package com.azure.containers.containerregistry.implementation.models;
 
 import com.azure.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import java.util.ArrayList;
 import java.util.List;
 
 /** Deleted repository. */
-@JacksonXmlRootElement(localName = "DeletedRepository")
 @Fluent
 public final class DeletedRepository {
     /*
      * SHA of the deleted image
      */
-    @JsonProperty("DeletedRepositoryManifestsDeletedItem")
-    private List<String> manifestsDeleted = new ArrayList<>();
+    @JsonProperty(value = "manifestsDeleted")
+    private List<String> manifestsDeleted;
 
     /*
      * Tag of the deleted image
      */
-    @JsonProperty("DeletedRepositoryTagsDeletedItem")
-    private List<String> tagsDeleted = new ArrayList<>();
+    @JsonProperty(value = "tagsDeleted")
+    private List<String> tagsDeleted;
 
     /**
      * Get the manifestsDeleted property: SHA of the deleted image.

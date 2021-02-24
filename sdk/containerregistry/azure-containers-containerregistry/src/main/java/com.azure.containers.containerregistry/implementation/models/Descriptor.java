@@ -6,12 +6,9 @@ package com.azure.containers.containerregistry.implementation.models;
 
 import com.azure.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import java.util.ArrayList;
 import java.util.List;
 
 /** Docker V2 image layer descriptor including config and layers. */
-@JacksonXmlRootElement(localName = "Descriptor")
 @Fluent
 public final class Descriptor {
     /*
@@ -35,8 +32,8 @@ public final class Descriptor {
     /*
      * Specifies a list of URIs from which this object may be downloaded.
      */
-    @JsonProperty("DescriptorUrlsItem")
-    private List<String> urls = new ArrayList<>();
+    @JsonProperty(value = "urls")
+    private List<String> urls;
 
     /*
      * Additional information provided through arbitrary metadata.

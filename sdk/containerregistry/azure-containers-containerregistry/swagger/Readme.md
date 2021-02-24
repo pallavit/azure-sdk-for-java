@@ -31,11 +31,12 @@ autorest --java --use=C:/work/autorest.java
 ``` yaml
 input-file: https://github.com/Azure/azure-rest-api-specs/blob/255757f41275e8ec474361690ea8886cae8a503b/specification/containerregistry/data-plane/Microsoft.ContainerRegistry/preview/2019-08-15/containerregistry.json
 java: true
-output-folder: ..\
+output-folder: c:\temp
 generate-client-as-impl: true
+generate-sync-async-clients: true
 namespace: com.azure.containers.containerregistry
 generate-client-interfaces: false
-sync-methods: none
+sync-methods: all
 license-header: MICROSOFT_MIT_SMALL
 add-context-parameter: true
 models-subpackage: implementation.models

@@ -20,6 +20,7 @@ import com.azure.core.annotation.UnexpectedResponseExceptionType;
 import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.util.Context;
+import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
 
 /** An instance of this class provides access to all the operations defined in RefreshTokens. */
@@ -64,6 +65,23 @@ public final class RefreshTokensImpl {
      * Exchange AAD tokens for an ACR refresh Token.
      *
      * @param accessToken The accessToken parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<RefreshToken>> getFromExchangeWithResponseAsync(
+            Paths108HwamOauth2ExchangePostRequestbodyContentApplicationXWwwFormUrlencodedSchema accessToken) {
+        final String accept = "application/json";
+        return FluxUtil.withContext(
+                context -> service.getFromExchange(this.client.getUrl(), accessToken, accept, context));
+    }
+
+    /**
+     * Exchange AAD tokens for an ACR refresh Token.
+     *
+     * @param accessToken The accessToken parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws AcrErrorsException thrown if the request is rejected by server.
@@ -76,5 +94,85 @@ public final class RefreshTokensImpl {
             Context context) {
         final String accept = "application/json";
         return service.getFromExchange(this.client.getUrl(), accessToken, accept, context);
+    }
+
+    /**
+     * Exchange AAD tokens for an ACR refresh Token.
+     *
+     * @param accessToken The accessToken parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<RefreshToken> getFromExchangeAsync(
+            Paths108HwamOauth2ExchangePostRequestbodyContentApplicationXWwwFormUrlencodedSchema accessToken) {
+        return getFromExchangeWithResponseAsync(accessToken)
+                .flatMap(
+                        (Response<RefreshToken> res) -> {
+                            if (res.getValue() != null) {
+                                return Mono.just(res.getValue());
+                            } else {
+                                return Mono.empty();
+                            }
+                        });
+    }
+
+    /**
+     * Exchange AAD tokens for an ACR refresh Token.
+     *
+     * @param accessToken The accessToken parameter.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<RefreshToken> getFromExchangeAsync(
+            Paths108HwamOauth2ExchangePostRequestbodyContentApplicationXWwwFormUrlencodedSchema accessToken,
+            Context context) {
+        return getFromExchangeWithResponseAsync(accessToken, context)
+                .flatMap(
+                        (Response<RefreshToken> res) -> {
+                            if (res.getValue() != null) {
+                                return Mono.just(res.getValue());
+                            } else {
+                                return Mono.empty();
+                            }
+                        });
+    }
+
+    /**
+     * Exchange AAD tokens for an ACR refresh Token.
+     *
+     * @param accessToken The accessToken parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public RefreshToken getFromExchange(
+            Paths108HwamOauth2ExchangePostRequestbodyContentApplicationXWwwFormUrlencodedSchema accessToken) {
+        return getFromExchangeAsync(accessToken).block();
+    }
+
+    /**
+     * Exchange AAD tokens for an ACR refresh Token.
+     *
+     * @param accessToken The accessToken parameter.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<RefreshToken> getFromExchangeWithResponse(
+            Paths108HwamOauth2ExchangePostRequestbodyContentApplicationXWwwFormUrlencodedSchema accessToken,
+            Context context) {
+        return getFromExchangeWithResponseAsync(accessToken, context).block();
     }
 }

@@ -6,19 +6,16 @@ package com.azure.containers.containerregistry.implementation.models;
 
 import com.azure.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import java.util.ArrayList;
 import java.util.List;
 
 /** Acr error response describing why the operation failed. */
-@JacksonXmlRootElement(localName = "AcrErrors")
 @Fluent
 public final class AcrErrors {
     /*
      * Array of detailed error
      */
-    @JsonProperty("AcrErrorInfo")
-    private List<AcrErrorInfo> errors = new ArrayList<>();
+    @JsonProperty(value = "errors")
+    private List<AcrErrorInfo> errors;
 
     /**
      * Get the errors property: Array of detailed error.

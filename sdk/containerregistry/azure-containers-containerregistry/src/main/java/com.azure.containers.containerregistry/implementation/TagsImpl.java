@@ -25,6 +25,7 @@ import com.azure.core.annotation.UnexpectedResponseExceptionType;
 import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.util.Context;
+import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
 
 /** An instance of this class provides access to all the operations defined in Tags. */
@@ -106,6 +107,28 @@ public final class TagsImpl {
      * @param n query parameter for max number of items.
      * @param orderby orderby query parameter.
      * @param digest filter by digest.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return list of tag details.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<TagList>> getListWithResponseAsync(
+            String name, String last, Integer n, String orderby, String digest) {
+        final String accept = "application/json";
+        return FluxUtil.withContext(
+                context -> service.getList(this.client.getUrl(), name, last, n, orderby, digest, accept, context));
+    }
+
+    /**
+     * List tags of a repository.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param last Query parameter for the last item in previous query. Result set will include values lexically after
+     *     last.
+     * @param n query parameter for max number of items.
+     * @param orderby orderby query parameter.
+     * @param digest filter by digest.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws AcrErrorsException thrown if the request is rejected by server.
@@ -117,6 +140,119 @@ public final class TagsImpl {
             String name, String last, Integer n, String orderby, String digest, Context context) {
         final String accept = "application/json";
         return service.getList(this.client.getUrl(), name, last, n, orderby, digest, accept, context);
+    }
+
+    /**
+     * List tags of a repository.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param last Query parameter for the last item in previous query. Result set will include values lexically after
+     *     last.
+     * @param n query parameter for max number of items.
+     * @param orderby orderby query parameter.
+     * @param digest filter by digest.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return list of tag details.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<TagList> getListAsync(String name, String last, Integer n, String orderby, String digest) {
+        return getListWithResponseAsync(name, last, n, orderby, digest)
+                .flatMap(
+                        (Response<TagList> res) -> {
+                            if (res.getValue() != null) {
+                                return Mono.just(res.getValue());
+                            } else {
+                                return Mono.empty();
+                            }
+                        });
+    }
+
+    /**
+     * List tags of a repository.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param last Query parameter for the last item in previous query. Result set will include values lexically after
+     *     last.
+     * @param n query parameter for max number of items.
+     * @param orderby orderby query parameter.
+     * @param digest filter by digest.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return list of tag details.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<TagList> getListAsync(
+            String name, String last, Integer n, String orderby, String digest, Context context) {
+        return getListWithResponseAsync(name, last, n, orderby, digest, context)
+                .flatMap(
+                        (Response<TagList> res) -> {
+                            if (res.getValue() != null) {
+                                return Mono.just(res.getValue());
+                            } else {
+                                return Mono.empty();
+                            }
+                        });
+    }
+
+    /**
+     * List tags of a repository.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param last Query parameter for the last item in previous query. Result set will include values lexically after
+     *     last.
+     * @param n query parameter for max number of items.
+     * @param orderby orderby query parameter.
+     * @param digest filter by digest.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return list of tag details.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public TagList getList(String name, String last, Integer n, String orderby, String digest) {
+        return getListAsync(name, last, n, orderby, digest).block();
+    }
+
+    /**
+     * List tags of a repository.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param last Query parameter for the last item in previous query. Result set will include values lexically after
+     *     last.
+     * @param n query parameter for max number of items.
+     * @param orderby orderby query parameter.
+     * @param digest filter by digest.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return list of tag details.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<TagList> getListWithResponse(
+            String name, String last, Integer n, String orderby, String digest, Context context) {
+        return getListWithResponseAsync(name, last, n, orderby, digest, context).block();
+    }
+
+    /**
+     * Get tag attributes by tag.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param reference Tag name.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return tag attributes by tag.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<TagAttributes>> getAttributesWithResponseAsync(String name, String reference) {
+        final String accept = "application/json";
+        return FluxUtil.withContext(
+                context -> service.getAttributes(this.client.getUrl(), name, reference, accept, context));
     }
 
     /**
@@ -135,6 +271,103 @@ public final class TagsImpl {
             String name, String reference, Context context) {
         final String accept = "application/json";
         return service.getAttributes(this.client.getUrl(), name, reference, accept, context);
+    }
+
+    /**
+     * Get tag attributes by tag.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param reference Tag name.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return tag attributes by tag.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<TagAttributes> getAttributesAsync(String name, String reference) {
+        return getAttributesWithResponseAsync(name, reference)
+                .flatMap(
+                        (Response<TagAttributes> res) -> {
+                            if (res.getValue() != null) {
+                                return Mono.just(res.getValue());
+                            } else {
+                                return Mono.empty();
+                            }
+                        });
+    }
+
+    /**
+     * Get tag attributes by tag.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param reference Tag name.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return tag attributes by tag.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<TagAttributes> getAttributesAsync(String name, String reference, Context context) {
+        return getAttributesWithResponseAsync(name, reference, context)
+                .flatMap(
+                        (Response<TagAttributes> res) -> {
+                            if (res.getValue() != null) {
+                                return Mono.just(res.getValue());
+                            } else {
+                                return Mono.empty();
+                            }
+                        });
+    }
+
+    /**
+     * Get tag attributes by tag.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param reference Tag name.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return tag attributes by tag.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public TagAttributes getAttributes(String name, String reference) {
+        return getAttributesAsync(name, reference).block();
+    }
+
+    /**
+     * Get tag attributes by tag.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param reference Tag name.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return tag attributes by tag.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<TagAttributes> getAttributesWithResponse(String name, String reference, Context context) {
+        return getAttributesWithResponseAsync(name, reference, context).block();
+    }
+
+    /**
+     * Update tag attributes.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param reference Tag name.
+     * @param value Repository attribute value.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> updateAttributesWithResponseAsync(
+            String name, String reference, ChangeableAttributes value) {
+        final String accept = "application/json";
+        return FluxUtil.withContext(
+                context -> service.updateAttributes(this.client.getUrl(), name, reference, value, accept, context));
     }
 
     /**
@@ -157,6 +390,90 @@ public final class TagsImpl {
     }
 
     /**
+     * Update tag attributes.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param reference Tag name.
+     * @param value Repository attribute value.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> updateAttributesAsync(String name, String reference, ChangeableAttributes value) {
+        return updateAttributesWithResponseAsync(name, reference, value).flatMap((Response<Void> res) -> Mono.empty());
+    }
+
+    /**
+     * Update tag attributes.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param reference Tag name.
+     * @param value Repository attribute value.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> updateAttributesAsync(
+            String name, String reference, ChangeableAttributes value, Context context) {
+        return updateAttributesWithResponseAsync(name, reference, value, context)
+                .flatMap((Response<Void> res) -> Mono.empty());
+    }
+
+    /**
+     * Update tag attributes.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param reference Tag name.
+     * @param value Repository attribute value.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void updateAttributes(String name, String reference, ChangeableAttributes value) {
+        updateAttributesAsync(name, reference, value).block();
+    }
+
+    /**
+     * Update tag attributes.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param reference Tag name.
+     * @param value Repository attribute value.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> updateAttributesWithResponse(
+            String name, String reference, ChangeableAttributes value, Context context) {
+        return updateAttributesWithResponseAsync(name, reference, value, context).block();
+    }
+
+    /**
+     * Delete tag.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param reference Tag name.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> deleteWithResponseAsync(String name, String reference) {
+        final String accept = "application/json";
+        return FluxUtil.withContext(context -> service.delete(this.client.getUrl(), name, reference, accept, context));
+    }
+
+    /**
      * Delete tag.
      *
      * @param name Name of the image (including the namespace).
@@ -171,5 +488,66 @@ public final class TagsImpl {
     public Mono<Response<Void>> deleteWithResponseAsync(String name, String reference, Context context) {
         final String accept = "application/json";
         return service.delete(this.client.getUrl(), name, reference, accept, context);
+    }
+
+    /**
+     * Delete tag.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param reference Tag name.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> deleteAsync(String name, String reference) {
+        return deleteWithResponseAsync(name, reference).flatMap((Response<Void> res) -> Mono.empty());
+    }
+
+    /**
+     * Delete tag.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param reference Tag name.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> deleteAsync(String name, String reference, Context context) {
+        return deleteWithResponseAsync(name, reference, context).flatMap((Response<Void> res) -> Mono.empty());
+    }
+
+    /**
+     * Delete tag.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param reference Tag name.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void delete(String name, String reference) {
+        deleteAsync(name, reference).block();
+    }
+
+    /**
+     * Delete tag.
+     *
+     * @param name Name of the image (including the namespace).
+     * @param reference Tag name.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws AcrErrorsException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> deleteWithResponse(String name, String reference, Context context) {
+        return deleteWithResponseAsync(name, reference, context).block();
     }
 }

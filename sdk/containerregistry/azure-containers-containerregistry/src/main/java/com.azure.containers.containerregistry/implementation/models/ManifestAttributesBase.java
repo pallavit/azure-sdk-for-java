@@ -6,12 +6,9 @@ package com.azure.containers.containerregistry.implementation.models;
 
 import com.azure.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import java.util.ArrayList;
 import java.util.List;
 
 /** Manifest details. */
-@JacksonXmlRootElement(localName = "ManifestAttributesBase")
 @Fluent
 public final class ManifestAttributesBase {
     /*
@@ -65,8 +62,8 @@ public final class ManifestAttributesBase {
     /*
      * List of tags
      */
-    @JsonProperty("ManifestAttributesBaseTagsItem")
-    private List<String> tags = new ArrayList<>();
+    @JsonProperty(value = "tags")
+    private List<String> tags;
 
     /*
      * Changeable attributes

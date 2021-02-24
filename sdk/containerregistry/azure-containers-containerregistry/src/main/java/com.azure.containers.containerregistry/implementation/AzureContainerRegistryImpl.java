@@ -139,7 +139,7 @@ public final class AzureContainerRegistryImpl {
      *
      * @param url Registry login URL.
      */
-    AzureContainerRegistryImpl(String url) {
+    public AzureContainerRegistryImpl(String url) {
         this(
                 new HttpPipelineBuilder()
                         .policies(new UserAgentPolicy(), new RetryPolicy(), new CookiePolicy())
@@ -154,7 +154,7 @@ public final class AzureContainerRegistryImpl {
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param url Registry login URL.
      */
-    AzureContainerRegistryImpl(HttpPipeline httpPipeline, String url) {
+    public AzureContainerRegistryImpl(HttpPipeline httpPipeline, String url) {
         this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), url);
     }
 
@@ -165,7 +165,7 @@ public final class AzureContainerRegistryImpl {
      * @param serializerAdapter The serializer to serialize an object into a string.
      * @param url Registry login URL.
      */
-    AzureContainerRegistryImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String url) {
+    public AzureContainerRegistryImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String url) {
         this.httpPipeline = httpPipeline;
         this.serializerAdapter = serializerAdapter;
         this.url = url;

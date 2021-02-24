@@ -6,19 +6,16 @@ package com.azure.containers.containerregistry.implementation.models;
 
 import com.azure.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import java.util.ArrayList;
 import java.util.List;
 
 /** List of repositories. */
-@JacksonXmlRootElement(localName = "Repositories")
 @Fluent
 public final class Repositories {
     /*
      * Repository names
      */
-    @JsonProperty("RepositoriesItem")
-    private List<String> names = new ArrayList<>();
+    @JsonProperty(value = "repositories")
+    private List<String> names;
 
     /**
      * Get the names property: Repository names.
