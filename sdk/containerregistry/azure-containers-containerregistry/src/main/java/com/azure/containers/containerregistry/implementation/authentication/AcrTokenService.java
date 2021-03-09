@@ -8,11 +8,13 @@ import com.azure.containers.containerregistry.implementation.models.Oauth2TokenP
 import com.azure.containers.containerregistry.implementation.models.PostContentSchemaGrantType;
 import com.azure.core.credential.AccessToken;
 import com.azure.core.credential.SimpleTokenCache;
+import com.azure.core.credential.TokenRequestContext;
 import com.azure.core.http.HttpPipeline;
 import com.azure.core.util.serializer.SerializerAdapter;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 public final class AcrTokenService {
 
@@ -22,12 +24,11 @@ public final class AcrTokenService {
     private final AccessTokensImpl accessTokensImpl;
     private final RefreshTokensImpl refreshTokenImpl;
 
-    AcrTokenService(String url, HttpPipeline pipeline, SerializerAdapter adapter) {
+    AcrTokenService(String url, HttpPipeline pipeline, SerializerAdapter adapter, Supplier<Mono<TokenRequestContext>> tokenRequestContext) {
         this.endpoint = url;
-        serviceName = getServiceNameFromEndpoint(url);
+        this.serviceName = getServiceNameFromEndpoint(url);
         this.accessTokensImpl = new AccessTokensImpl(url, pipeline, adapter);
         this.refreshTokenImpl = new RefreshTokensImpl(url, pipeline, adapter);
-        refreshToken = new SimpleTokenCache()
     }
 
     private String endpoint;
@@ -50,25 +51,15 @@ public final class AcrTokenService {
             });
     }
 
-    public Mono<AccessToken> getAccessTokenFromAadToken(String tenant, String aadRefreshToken, String aadAccessToken, String scope)
-    {
-        return this.getAcrRefreshTokenAsync(tenant, aadRefreshToken, aadAccessToken, scope)
-            .flatMap(token -> this.getAccessTokenAsync(token.getRefreshToken(), scope));
-    }
-
-    private Mono<AcrRefreshToken> getAcrRefreshTokenAsync(String tenant, String refreshToken, String accessToken,String scope) {
-
-        var service = "pallavitacr.azurecr.io"; // endpoint.substring("https:///".length() - 1);
-        var grant_type = "access_token";
-//        var refreshTokenCallContent = new Oauth2ExchangePostRequestbody()
-//            .setService(endpoint)
-//            .setTenant(tenant)
-//            .setRefreshToken(refreshToken)
-//            .setAccessToken(accessToken)
-//            .setGrantType(accessToken != null
-//                ? (refreshToken != null ? PostContentSchemaGrantType.ACCESS_TOKEN_REFRESH_TOKEN: PostContentSchemaGrantType.ACCESS_TOKEN)
-//                : PostContentSchemaGrantType.REFRESH_TOKEN );
-
-        return this.refreshTokenImpl.getRefreshTokenAsync(PostContentSchemaGrantType.ACCESS_TOKEN.toString(), accessToken, tenant, service);
+    public Mono<AccessToken> getAcrRefreshTokenAsync(String accessToken, String scope) {
+        return this.refreshTokenImpl.getRefreshTokenAsync(
+            PostContentSchemaGrantType.ACCESS_TOKEN.toString(),
+            accessToken,
+            null,
+            serviceName).map(token -> {
+                var refreshToken = token.getRefreshToken();
+            var expirationTime = JsonWebToken.retrieveExpiration(refreshToken);
+            return new AccessToken(refreshToken, expirationTime);
+        });
     }
 }
