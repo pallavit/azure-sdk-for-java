@@ -1,0 +1,101 @@
+[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for com.azure:azure-container-containerregistry:jar:1.0.0-beta.1
+[WARNING] 'profiles.profile[transform-spotbugs].activation.file.exists' Failed to interpolate file location ${project.build.directory}/spotbugs/spotbugsXml.xml for profile transform-spotbugs: ${project.*} expressions are not supported during profile activation @ com.azure:azure-client-sdk-parent:1.7.0, c:\enlistments\azure-sdk-for-java\sdk\parents\azure-client-sdk-parent\pom.xml
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] 
+[INFO] ------------< com.azure:azure-container-containerregistry >-------------
+[INFO] Building Microsoft Azure client library for Azure Container Registry 1.0.0-beta.1
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.0.0-M3:enforce (default-cli) @ azure-container-containerregistry ---
+[INFO] 
+[INFO] --- jacoco-maven-plugin:0.8.5:prepare-agent (prepare-agent) @ azure-container-containerregistry ---
+[INFO] argLine set to -javaagent:C:\\Users\\pallavit\\.m2\\repository\\org\\jacoco\\org.jacoco.agent\\0.8.5\\org.jacoco.agent-0.8.5-runtime.jar=destfile=c:\\enlistments\\azure-sdk-for-java\\sdk\\containerregistry\\azure-containers-containerregistry\\target\\jacoco.exec
+[INFO] 
+[INFO] --- maven-resources-plugin:2.4.3:resources (default-resources) @ azure-container-containerregistry ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory c:\enlistments\azure-sdk-for-java\sdk\containerregistry\azure-containers-containerregistry\src\main\resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ azure-container-containerregistry ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 82 source files to c:\enlistments\azure-sdk-for-java\sdk\containerregistry\azure-containers-containerregistry\target\classes
+[INFO] /c:/enlistments/azure-sdk-for-java/sdk/containerregistry/azure-containers-containerregistry/src/main/java/com.azure.containers.containerregistry/AzureContainerRegistryClientBuilder.java: Some input files use or override a deprecated API.
+[INFO] /c:/enlistments/azure-sdk-for-java/sdk/containerregistry/azure-containers-containerregistry/src/main/java/com.azure.containers.containerregistry/AzureContainerRegistryClientBuilder.java: Recompile with -Xlint:deprecation for details.
+[INFO] 
+[INFO] --- jacoco-maven-plugin:0.8.5:instrument (default-instrument) @ azure-container-containerregistry ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.0.0:add-test-source (compile-samples-source) @ azure-container-containerregistry ---
+[INFO] Test Source directory: c:\enlistments\azure-sdk-for-java\sdk\containerregistry\azure-containers-containerregistry\src\samples\java added.
+[INFO] 
+[INFO] --- maven-resources-plugin:2.4.3:testResources (default-testResources) @ azure-container-containerregistry ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory c:\enlistments\azure-sdk-for-java\sdk\containerregistry\azure-containers-containerregistry\src\test\resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ azure-container-containerregistry ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 1 source file to c:\enlistments\azure-sdk-for-java\sdk\containerregistry\azure-containers-containerregistry\target\test-classes
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.0.0-M3:test (default-test) @ azure-container-containerregistry ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jacoco-maven-plugin:0.8.5:restore-instrumented-classes (default-restore-instrumented-classes) @ azure-container-containerregistry ---
+[INFO] 
+[INFO] --- maven-jar-plugin:3.1.2:jar (default-jar) @ azure-container-containerregistry ---
+[INFO] Building jar: c:\enlistments\azure-sdk-for-java\sdk\containerregistry\azure-containers-containerregistry\target\azure-container-containerregistry-1.0.0-beta.1.jar
+[INFO] 
+[INFO] --- maven-javadoc-plugin:3.1.1:jar (attach-javadocs) @ azure-container-containerregistry ---
+[INFO] Skipping javadoc generation
+[INFO] 
+[INFO] >>> maven-source-plugin:3.0.1:jar (attach-sources) > generate-sources @ azure-container-containerregistry >>>
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.0.0-M3:enforce (default-cli) @ azure-container-containerregistry ---
+[INFO] 
+[INFO] --- jacoco-maven-plugin:0.8.5:prepare-agent (prepare-agent) @ azure-container-containerregistry ---
+[INFO] argLine set to -javaagent:C:\\Users\\pallavit\\.m2\\repository\\org\\jacoco\\org.jacoco.agent\\0.8.5\\org.jacoco.agent-0.8.5-runtime.jar=destfile=c:\\enlistments\\azure-sdk-for-java\\sdk\\containerregistry\\azure-containers-containerregistry\\target\\jacoco.exec
+[INFO] 
+[INFO] <<< maven-source-plugin:3.0.1:jar (attach-sources) < generate-sources @ azure-container-containerregistry <<<
+[INFO] 
+[INFO] 
+[INFO] --- maven-source-plugin:3.0.1:jar (attach-sources) @ azure-container-containerregistry ---
+[INFO] Building jar: c:\enlistments\azure-sdk-for-java\sdk\containerregistry\azure-containers-containerregistry\target\azure-container-containerregistry-1.0.0-beta.1-sources.jar
+[INFO] 
+[INFO] --- maven-antrun-plugin:1.8:run (copy) @ azure-container-containerregistry ---
+[INFO] Executing tasks
+
+main:
+[INFO] Executed tasks
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.0.0:attach-artifact (attach-artifacts) @ azure-container-containerregistry ---
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.1.2:check (default) @ azure-container-containerregistry ---
+[INFO] Starting audit...
+[ERROR] C:\enlistments\azure-sdk-for-java\sdk\containerregistry\azure-containers-containerregistry\src\main\java\com.azure.containers.containerregistry\models\ChangeableAttributes.java:1: Missing package-info.java file. [JavadocPackage]
+[ERROR] C:\enlistments\azure-sdk-for-java\sdk\containerregistry\azure-containers-containerregistry\src\main\java\com.azure.containers.containerregistry\RepositoryAsyncClient.java:16:8: Unused import - com.azure.core.util.FluxUtil. [UnusedImports]
+[WARN] C:\enlistments\azure-sdk-for-java\sdk\containerregistry\azure-containers-containerregistry\src\main\java\com.azure.containers.containerregistry\RepositoryAsyncClient.java:90:5: '{' at column 5 should be on the previous line. [LeftCurly]
+[ERROR] C:\enlistments\azure-sdk-for-java\sdk\containerregistry\azure-containers-containerregistry\src\main\java\com.azure.containers.containerregistry\RepositoryClient.java:16:8: Unused import - com.azure.core.http.rest.Response. [UnusedImports]
+[ERROR] C:\enlistments\azure-sdk-for-java\sdk\containerregistry\azure-containers-containerregistry\src\main\java\com.azure.containers.containerregistry\RepositoryClient.java:17:8: Unused import - com.azure.core.util.Context. [UnusedImports]
+[ERROR] C:\enlistments\azure-sdk-for-java\sdk\containerregistry\azure-containers-containerregistry\src\main\java\com.azure.containers.containerregistry\RepositoryClient.java:45:12: "Repositories" class is in an implementation package, and it should not be a return type from public API. Alternatively, it can be removed from the implementation package and made public API. [NoImplInPublicAPI]
+[ERROR] C:\enlistments\azure-sdk-for-java\sdk\containerregistry\azure-containers-containerregistry\src\main\java\com.azure.containers.containerregistry\RepositoryClient.java:78:12: "RepositoryAttributes" class is in an implementation package, and it should not be a return type from public API. Alternatively, it can be removed from the implementation package and made public API. [NoImplInPublicAPI]
+[ERROR] C:\enlistments\azure-sdk-for-java\sdk\containerregistry\azure-containers-containerregistry\src\main\java\com.azure.containers.containerregistry\RepositoryClient.java:107:12: "DeletedRepository" class is in an implementation package, and it should not be a return type from public API. Alternatively, it can be removed from the implementation package and made public API. [NoImplInPublicAPI]
+[ERROR] C:\enlistments\azure-sdk-for-java\sdk\containerregistry\azure-containers-containerregistry\src\main\java\com.azure.containers.containerregistry\RepositoryClient.java:136:47: "ChangeableAttributes" class is in an implementation package, and it should not be used as a parameter type in public API. Alternatively, it can be removed from the implementation package and made public API, after appropriate API review. [NoImplInPublicAPI]
+[WARN] C:\enlistments\azure-sdk-for-java\sdk\containerregistry\azure-containers-containerregistry\src\samples\java\com.azure.containers.containerregistry\HelloWorld.java:7:1: '{' at column 1 should be on the previous line. [LeftCurly]
+[WARN] C:\enlistments\azure-sdk-for-java\sdk\containerregistry\azure-containers-containerregistry\src\samples\java\com.azure.containers.containerregistry\HelloWorld.java:9:5: '{' at column 5 should be on the previous line. [LeftCurly]
+Audit done.
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  45.539 s
+[INFO] Finished at: 2021-02-26T12:29:24-08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-checkstyle-plugin:3.1.2:check (default) on project azure-container-containerregistry: Failed during checkstyle execution: There are 8 errors reported by Checkstyle 8.40 with ../../../eng/code-quality-reports/src/main/resources/checkstyle/checkstyle.xml ruleset. -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException

@@ -5,6 +5,7 @@ package com.azure.containers.containerregistry;
 
 import com.azure.core.credential.TokenRequestContext;
 import com.azure.core.http.HttpClient;
+import com.azure.core.http.ProxyOptions;
 import com.azure.core.http.netty.NettyAsyncHttpClientBuilder;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
@@ -16,24 +17,28 @@ import com.azure.identity.DefaultAzureCredential;
 import com.azure.identity.DefaultAzureCredentialBuilder;
 import reactor.core.publisher.Mono;
 
+import java.net.InetSocketAddress;
 import java.util.Arrays;
 
 public class HelloWorld
 {
     public static void main(String[] args)
     {
-        var x = Mono.empty().then(Mono.defer(() -> { System.out.println("Hello"); return Mono.just(1);}));
-
-        var y = x.block();
         var defaultCredential = new AzureCliCredentialBuilder().build();
+
+        ProxyOptions proxyOptions = new ProxyOptions(ProxyOptions.Type.HTTP, new InetSocketAddress("localhost", 8888));
+
+        HttpClient nettyHttpClient = new NettyAsyncHttpClientBuilder()
+            .proxy(proxyOptions)
+            .build();
 
 /*        // Configure proxy to Fiddler using port 8888
         Configuration configuration = new Configuration()
             .put("java.net.useSystemProxies", "true")
-            .put("http.proxyHost", "localhost")
-            .put("http.proxyPort", "8888")
-            .put("http.proxyUser", "1")
-            .put("http.proxyPassword", "1");
+            .put("https.proxyHost", "localhost")
+            .put("https.proxyPort", "8888")
+           .put("https.proxyUser", "1")
+            .put("https.proxyPassword", "1");
 // Create the Netty HTTP client
         HttpClient nettyHttpClient = new NettyAsyncHttpClientBuilder()
             .configuration(configuration)
@@ -41,7 +46,7 @@ public class HelloWorld
 
         ContainerRegistryClient client = new ContainerRegistryBuilder()
             .tokenCredential(defaultCredential)
-            /*.httpClient(nettyHttpClient)*/
+            .httpClient(nettyHttpClient)
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS))
             .url("https://pallavitacr.azurecr.io")
             .buildContainerRegistryClient();

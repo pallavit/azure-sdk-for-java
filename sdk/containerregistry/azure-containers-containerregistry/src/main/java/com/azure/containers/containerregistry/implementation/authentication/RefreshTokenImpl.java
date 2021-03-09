@@ -56,8 +56,10 @@ final class RefreshTokensImpl {
         @UnexpectedResponseExceptionType(AcrErrorsException.class)
         Mono<Response<AcrRefreshToken>> getRefreshToken(
             @HostParam("url") String url,
-            @BodyParam("application/x-www-form-urlencoded")
-                Oauth2ExchangePostRequestbody accessToken,
+            @FormParam(value = "grant-type", encoded = true) String grantType,
+            @FormParam(value = "service", encoded = true) String service,
+            @FormParam(value = "access_token", encoded = true) String accessToken,
+            @FormParam(value = "tenant", encoded = true) String tenant,
             @HeaderParam("Accept") String accept,
             Context context);
     }
@@ -73,30 +75,33 @@ final class RefreshTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<AcrRefreshToken>> getRefreshTokenWithResponseAsync(
-        Oauth2ExchangePostRequestbody accessToken) {
+        String grantType,
+        String accessToken,
+        String tenant,
+        String serviceValue) {
         final String accept = "application/json";
         return FluxUtil.withContext(
-            context -> service.getRefreshToken(this.getUrl(), accessToken, accept, context));
+            context -> service.getRefreshToken(this.getUrl(), grantType, serviceValue, accessToken, tenant, accept, context));
     }
 
-    /**
-     * Exchange AAD tokens for an ACR refresh Token.
-     *
-     * @param accessToken The accessToken parameter.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws AcrErrorsException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<AcrRefreshToken>> getRefreshTokenWithResponseAsync(
-        Oauth2ExchangePostRequestbody accessToken,
-        Context context) {
-        final String accept = "application/json";
-        return service.getRefreshToken(this.getUrl(), accessToken, accept, context);
-    }
-
+//    /**
+//     * Exchange AAD tokens for an ACR refresh Token.
+//     *
+//     * @param accessToken The accessToken parameter.
+//     * @param context The context to associate with this operation.
+//     * @throws IllegalArgumentException thrown if parameters fail the validation.
+//     * @throws AcrErrorsException thrown if the request is rejected by server.
+//     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+//     * @return the response.
+//     */
+//    @ServiceMethod(returns = ReturnType.SINGLE)
+//    public Mono<Response<AcrRefreshToken>> getRefreshTokenWithResponseAsync(
+//        String grantType, String accessToken, String tenant, String serviceValue,
+//        Context context) {
+//        final String accept = "application/json";
+//        return service.getRefreshToken(this.getUrl(),grantType, accessToken, tenant, serviceValue , accept, context);
+//    }
+//
     /**
      * Exchange AAD tokens for an ACR refresh Token.
      *
@@ -108,8 +113,8 @@ final class RefreshTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<AcrRefreshToken> getRefreshTokenAsync(
-        Oauth2ExchangePostRequestbody accessToken) {
-        return getRefreshTokenWithResponseAsync(accessToken)
+        String grantType, String accessToken, String tenant, String service) {
+        return getRefreshTokenWithResponseAsync(grantType, accessToken, tenant, service)
             .flatMap(
                 (Response<AcrRefreshToken> res) -> {
                     if (res.getValue() != null) {
@@ -120,60 +125,60 @@ final class RefreshTokensImpl {
                 });
     }
 
-    /**
-     * Exchange AAD tokens for an ACR refresh Token.
-     *
-     * @param accessToken The accessToken parameter.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws AcrErrorsException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<AcrRefreshToken> getRefreshTokenAsync(
-        Oauth2ExchangePostRequestbody accessToken,
-        Context context) {
-        return getRefreshTokenWithResponseAsync(accessToken, context)
-            .flatMap(
-                (Response<AcrRefreshToken> res) -> {
-                    if (res.getValue() != null) {
-                        return Mono.just(res.getValue());
-                    } else {
-                        return Mono.empty();
-                    }
-                });
-    }
-
-    /**
-     * Exchange AAD tokens for an ACR refresh Token.
-     *
-     * @param accessToken The accessToken parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws AcrErrorsException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public AcrRefreshToken getRefreshToken(
-        Oauth2ExchangePostRequestbody accessToken) {
-        return getRefreshTokenAsync(accessToken).block();
-    }
-
-    /**
-     * Exchange AAD tokens for an ACR refresh Token.
-     *
-     * @param accessToken The accessToken parameter.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws AcrErrorsException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<AcrRefreshToken> getRefreshTokenWithResponse(
-        Oauth2ExchangePostRequestbody accessToken,
-        Context context) {
-        return getRefreshTokenWithResponseAsync(accessToken, context).block();
-    }
+//    /**
+//     * Exchange AAD tokens for an ACR refresh Token.
+//     *
+//     * @param accessToken The accessToken parameter.
+//     * @param context The context to associate with this operation.
+//     * @throws IllegalArgumentException thrown if parameters fail the validation.
+//     * @throws AcrErrorsException thrown if the request is rejected by server.
+//     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+//     * @return the response.
+//     */
+//    @ServiceMethod(returns = ReturnType.SINGLE)
+//    public Mono<AcrRefreshToken> getRefreshTokenAsync(
+//        String grantType, String accessToken, String tenant, String service,
+//        Context context) {
+//        return getRefreshTokenWithResponseAsync(grantType, accessToken, tenant, service, context)
+//            .flatMap(
+//                (Response<AcrRefreshToken> res) -> {
+//                    if (res.getValue() != null) {
+//                        return Mono.just(res.getValue());
+//                    } else {
+//                        return Mono.empty();
+//                    }
+//                });
+//    }
+//
+//    /**
+//     * Exchange AAD tokens for an ACR refresh Token.
+//     *
+//     * @param accessToken The accessToken parameter.
+//     * @throws IllegalArgumentException thrown if parameters fail the validation.
+//     * @throws AcrErrorsException thrown if the request is rejected by server.
+//     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+//     * @return the response.
+//     */
+//    @ServiceMethod(returns = ReturnType.SINGLE)
+//    public AcrRefreshToken getRefreshToken(
+//        String grantType, String accessToken, String tenant, String service) {
+//        return getRefreshTokenAsync(grantType, accessToken, tenant, service).block();
+//    }
+//
+//    /**
+//     * Exchange AAD tokens for an ACR refresh Token.
+//     *
+//     * @param accessToken The accessToken parameter.
+//     * @param context The context to associate with this operation.
+//     * @throws IllegalArgumentException thrown if parameters fail the validation.
+//     * @throws AcrErrorsException thrown if the request is rejected by server.
+//     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+//     * @return the response.
+//     */
+//    @ServiceMethod(returns = ReturnType.SINGLE)
+//    public Response<AcrRefreshToken> getRefreshTokenWithResponse(
+//        String grantType, String accessToken, String tenant, String service,
+//        Context context) {
+//        return getRefreshTokenWithResponseAsync(grantType, accessToken, tenant, service, context).block();
+//    }
 }
