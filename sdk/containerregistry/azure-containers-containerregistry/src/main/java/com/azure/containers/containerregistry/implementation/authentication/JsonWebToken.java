@@ -11,6 +11,7 @@ import java.time.ZoneOffset;
 import java.util.Base64;
 
 class JsonWebToken {
+
     /**
      * Retrieves the expiration date from the specified JWT value.
      *

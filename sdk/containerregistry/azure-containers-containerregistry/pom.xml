@@ -31,7 +31,12 @@
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core</artifactId>
-      <version>1.13.0</version> <!-- {x-version-update;com.azure:azure-core;dependency} -->
+      <version>1.14.0</version> <!-- &lt;!&ndash; {x-version-update;com.azure:azure-core;dependency} &ndash;&gt;-->
+    </dependency>
+    <dependency>
+      <groupId>com.azure</groupId>
+      <artifactId>azure-core-experimental</artifactId>
+      <version>1.0.0-beta.11</version> <!-- {x-version-update;com.azure:azure-core-experimental;dependency} -->
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>

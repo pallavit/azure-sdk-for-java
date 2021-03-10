@@ -1,27 +1,28 @@
 package com.azure.containers.containerregistry;
 
-import com.azure.containers.containerregistry.implementation.authentication.AccessTokenCache;
-import com.azure.containers.containerregistry.implementation.authentication.AcrTokenCredentials;
+import com.azure.containers.containerregistry.implementation.authentication.*;
+import com.azure.containers.containerregistry.implementation.credential.AcrAccessTokenCredential;
+import com.azure.containers.containerregistry.implementation.credential.AcrRefreshTokenCredential;
+import com.azure.containers.containerregistry.implementation.credential.AcrTokenRequestContext;
 import com.azure.core.credential.AccessToken;
 import com.azure.core.credential.TokenCredential;
-import com.azure.core.credential.TokenRequestContext;
-import com.azure.core.http.HttpPipeline;
 import com.azure.core.http.HttpPipelineCallContext;
 import com.azure.core.http.HttpPipelineNextPolicy;
 import com.azure.core.http.HttpResponse;
 import com.azure.core.http.policy.HttpPipelinePolicy;
-import com.azure.core.util.serializer.SerializerAdapter;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.*;
+
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.HashMap;
 
 public class AcrCredentialsPolicy implements HttpPipelinePolicy {
+
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER = "Bearer";
     public static final Pattern AUTHENTICATION_CHALLENGE_PATTERN =
@@ -31,117 +32,75 @@ public class AcrCredentialsPolicy implements HttpPipelinePolicy {
     public static final String WWW_AUTHENTICATE = "WWW-Authenticate";
 
     public static final String SCOPES_PARAMETER = "scope";
+    public static final String SERVICE_PARAMETER = "service";
+    AccessTokenCache refreshTokenCache;
 
-//
-    private final AcrTokenCredentials credential;
-    private final Map<String,AccessTokenCache> cache;
+    private final AcrTokenService tokenService;
+    private ConcurrentMap<String, AccessTokenCache> tokenCacheMap;
 
-    private String scope;
-
-    private String getScope() {
-        return scope;
-    }
-
-    private void setScope(String scope)
+    public AcrCredentialsPolicy(TokenCredential credential, String url)
     {
-        this.scope = scope;
+        this.tokenService = new AcrTokenService(url);
+        this.tokenCacheMap = new ConcurrentHashMap<>();
+        this.refreshTokenCache = new AccessTokenCache(new AcrRefreshTokenCredential(tokenService, credential));
     }
 
-    /**
-     * Creates BearerTokenAuthenticationChallengePolicy.
-     *
-     * @param credential the token credential to authenticate the request
-     */
-    public AcrCredentialsPolicy(TokenCredential tokenCredential, String url, HttpPipeline httpPipeline, SerializerAdapter serializerAdapter) {
-        Objects.requireNonNull(tokenCredential);
-        this.credential  = new AcrTokenCredentials(tokenCredential, url, httpPipeline, serializerAdapter);
-        this.cache = new HashMap<>();
-    }
-
-
-    private Mono<AccessToken> getAccessToken()
-    {
-        var scope = this.getScope();
-        return credential.getToken(new TokenRequestContext().addScopes(scope));
-    }
-
-    /**
-     *
-     * Executed before sending the initial request and authenticates the request.
-     *
-     * @param context The request context.
-     * @return A {@link Mono} containing {@link Void}
-     */
     public Mono<Void> onBeforeRequest(HttpPipelineCallContext context) {
-        return authenticateRequest(context, false);
+        // TODO: Add scopes on the fly based on the request.
+        return Mono.empty();
     }
 
-    /**
-     * Handles the authentication challenge in the event a 401 response with a WWW-Authenticate authentication
-     * challenge header is received after the initial request.
-     *
-     * @param context The request context.
-     * @param response The Http Response containing the authentication challenge header.
-     * @return A {@link Mono} containing the status, whether the challenge was successfully extracted and handled.
-     *  if true then a follow up request needs to be sent authorized with the challenge based bearer token.
-     */
-    public Mono<Boolean> onChallenge(HttpPipelineCallContext context, HttpResponse response) {
-        String authHeader = response.getHeaderValue(WWW_AUTHENTICATE);
-        if (response.getStatusCode() == 401 && authHeader != null) {
-          /*  List<AuthenticationChallenge> challenges = parseChallengeParams(authHeader);*/
-                Map<String, String> extractedChallengeParams = parseChallengeParams(authHeader);
-                if (extractedChallengeParams.containsKey(SCOPES_PARAMETER)) {
-                    /*String claims = new String(Base64.getUrlDecoder()
-                        .decode(extractedChallengeParams.get(CLAIMS_PARAMETER)), StandardCharsets.UTF_8);*/
-                    String scope = extractedChallengeParams.get(SCOPES_PARAMETER);
-                    this.setScope(scope);
-                    return authenticateRequest(context, true)
-                        .flatMap(b -> Mono.just(true));
-                }
-        }
-        return Mono.just(false);
-    }
-
-    @Override
     public Mono<HttpResponse> process(HttpPipelineCallContext context, HttpPipelineNextPolicy next) {
         if ("http".equals(context.getHttpRequest().getUrl().getProtocol())) {
             return Mono.error(new RuntimeException("token credentials require a URL using the HTTPS protocol scheme"));
-        }
-        HttpPipelineNextPolicy nextPolicy = next.clone();
-
-        return onBeforeRequest(context)
-            .then(next.process())
-            .flatMap(httpResponse -> {
-                String authHeader = httpResponse.getHeaderValue(WWW_AUTHENTICATE);
-                if (httpResponse.getStatusCode() == 401 && authHeader != null) {
-                    return onChallenge(context, httpResponse).flatMap(retry -> {
-                        if (retry) {
-                            return nextPolicy.process();
-                        } else {
-                            return Mono.just(httpResponse);
-                        }
-                    });
-                }
-                return Mono.just(httpResponse);
+        } else {
+            HttpPipelineNextPolicy nextPolicy = next.clone();
+            return this.onBeforeRequest(context).then(Mono.defer(() -> {
+                return next.process();
+            })).flatMap((httpResponse) -> {
+                String authHeader = httpResponse.getHeaderValue("WWW-Authenticate");
+                return httpResponse.getStatusCode() == 401 && authHeader != null ? this.onChallenge(context, httpResponse).flatMap((retry) -> {
+                    return retry ? nextPolicy.process() : Mono.just(httpResponse);
+                }) : Mono.just(httpResponse);
             });
+        }
     }
 
-    private Mono<Void> authenticateRequest(HttpPipelineCallContext context , boolean forceTokenRefresh)
+    private Mono<AccessToken> getOperationToken(AcrTokenRequestContext tokenRequestContext)
     {
-        if(scope != null) {
-            if(!cache.containsKey(scope))
-            {
-                cache.put(scope, new AccessTokenCache(this::getAccessToken));
-            }
+        String scope = tokenRequestContext.getScope();
+        return Mono.defer(() -> this.refreshTokenCache.getToken(tokenRequestContext)
+            .flatMap(refreshToken -> this.tokenCacheMap.get(scope).getToken(new AcrTokenRequestContext(tokenRequestContext.getServiceName(), tokenRequestContext.getScope(), tokenRequestContext.getRefreshToken()))))
+            .repeatWhenEmpty((Flux<Long> longFlux) -> longFlux.concatMap(ignored -> Flux.just(true)));
+    }
 
-            return cache.get(scope).getToken(this::getAccessToken, forceTokenRefresh)
-                .flatMap(token -> {
-                    context.getHttpRequest().getHeaders().set(AUTHORIZATION_HEADER, BEARER + " " + token.getToken());
-                    return Mono.empty();
-                });
+    public Mono<Void> authorizeRequest(HttpPipelineCallContext context, AcrTokenRequestContext tokenRequestContext) {
+        String scope = tokenRequestContext.getScope();
+        this.tokenCacheMap.putIfAbsent(scope, new AccessTokenCache(new AcrAccessTokenCredential(this.tokenService)));
+
+        return getOperationToken(tokenRequestContext)
+            .flatMap((token) -> { context.getHttpRequest().getHeaders().set("Authorization", "Bearer " + token.getToken());
+                return Mono.empty();
+            });
         }
 
-        return Mono.empty();
+    public Mono<Boolean> onChallenge(HttpPipelineCallContext context, HttpResponse response) {
+        return Mono.defer(() -> {
+            String authHeader = response.getHeaderValue(WWW_AUTHENTICATE);
+            if (!(response.getStatusCode() == 401 && authHeader != null)) {
+                return Mono.just(false);
+            } else {
+
+                    Map<String, String> extractedChallengeParams = parseChallengeParams(authHeader);
+                    if (extractedChallengeParams.containsKey(SCOPES_PARAMETER)) {
+                        String scope = extractedChallengeParams.get(SCOPES_PARAMETER);
+                        String serviceName = extractedChallengeParams.get(SERVICE_PARAMETER);
+                        return authorizeRequest(context, new AcrTokenRequestContext(serviceName, scope))
+                            .flatMap(b -> Mono.just(true));
+                    }
+                return Mono.just(false);
+            }
+        });
     }
 
     private Map<String, String> parseBearerChallenge(String header) {

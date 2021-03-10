@@ -3,28 +3,24 @@
 
 package com.azure.containers.containerregistry;
 
-import com.azure.core.credential.TokenRequestContext;
+import com.azure.containers.containerregistry.implementation.models.Repositories;
 import com.azure.core.http.HttpClient;
 import com.azure.core.http.ProxyOptions;
 import com.azure.core.http.netty.NettyAsyncHttpClientBuilder;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
-import com.azure.core.http.policy.HttpLoggingPolicy;
-import com.azure.core.util.Configuration;
+import com.azure.core.http.rest.Response;
 import com.azure.core.util.Context;
+import com.azure.identity.AzureCliCredential;
 import com.azure.identity.AzureCliCredentialBuilder;
-import com.azure.identity.DefaultAzureCredential;
-import com.azure.identity.DefaultAzureCredentialBuilder;
-import reactor.core.publisher.Mono;
 
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 
 public class HelloWorld
 {
     public static void main(String[] args)
     {
-        var defaultCredential = new AzureCliCredentialBuilder().build();
+        AzureCliCredential defaultCredential = new AzureCliCredentialBuilder().build();
 
         ProxyOptions proxyOptions = new ProxyOptions(ProxyOptions.Type.HTTP, new InetSocketAddress("localhost", 8888));
 
@@ -32,7 +28,8 @@ public class HelloWorld
             .proxy(proxyOptions)
             .build();
 
-/*        // Configure proxy to Fiddler using port 8888
+/*
+        // Configure proxy to Fiddler using port 8888
         Configuration configuration = new Configuration()
             .put("java.net.useSystemProxies", "true")
             .put("https.proxyHost", "localhost")
@@ -42,7 +39,8 @@ public class HelloWorld
 // Create the Netty HTTP client
         HttpClient nettyHttpClient = new NettyAsyncHttpClientBuilder()
             .configuration(configuration)
-            .build();*/
+            .build();
+*/
 
         ContainerRegistryClient client = new ContainerRegistryBuilder()
             .tokenCredential(defaultCredential)
@@ -51,7 +49,7 @@ public class HelloWorld
             .url("https://pallavitacr.azurecr.io")
             .buildContainerRegistryClient();
 
-        var repositories = client.getRepositoriesWithResponse(null, 0, Context.NONE);
+        Response<Repositories> repositories = client.getRepositoriesWithResponse(null, 0, Context.NONE);
     }
 }
 

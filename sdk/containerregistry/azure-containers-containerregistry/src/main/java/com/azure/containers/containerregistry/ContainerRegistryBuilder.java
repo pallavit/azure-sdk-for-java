@@ -4,9 +4,7 @@
 
 package com.azure.containers.containerregistry;
 
-import com.azure.containers.containerregistry.implementation.authentication.AcrTokenCredentials;
 import com.azure.containers.containerregistry.implementation.ContainerRegistryImpl;
-import com.azure.containers.containerregistry.implementation.authentication.AcrTokenService;
 import com.azure.core.annotation.ServiceClientBuilder;
 import com.azure.core.credential.TokenCredential;
 import com.azure.core.http.HttpClient;
@@ -213,16 +211,7 @@ public final class ContainerRegistryBuilder {
 
         if(tokenCredential != null)
         {
-            // policies.add(new BearerTokenAuthenticationPolicy(tokenCredential));
-            HttpPipeline httpPipeline =
-                new HttpPipelineBuilder()
-                    .policies(policies.toArray(new HttpPipelinePolicy[0]))
-                    .httpClient(httpClient)
-                    .build();
-
-            // policies.remove(policies.size() -1);
-
-            policies.add(new AcrCredentialsPolicy(tokenCredential, url, httpPipeline, serializerAdapter != null ? serializerAdapter : JacksonAdapter.createDefaultSerializerAdapter()));
+            policies.add(new AcrCredentialsPolicy(tokenCredential, url));
         }
 
         HttpPipeline httpPipeline =
