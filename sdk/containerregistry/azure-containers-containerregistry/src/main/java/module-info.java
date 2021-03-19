@@ -3,5 +3,6 @@
 
 module com.azure.containers.containerregistry {
     requires transitive com.azure.core;
+    requires transitive com.azure.core.experimental;
     exports com.azure.containers.containerregistry;
 }

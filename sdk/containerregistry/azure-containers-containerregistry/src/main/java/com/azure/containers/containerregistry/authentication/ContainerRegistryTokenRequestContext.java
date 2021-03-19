@@ -3,10 +3,12 @@
 
 package com.azure.containers.containerregistry.authentication;
 
+import com.azure.core.credential.TokenRequestContext;
+
 /**
  * A token request context associated with a given container registry token.
  */
-public class ContainerRegistryTokenRequestContext {
+public class ContainerRegistryTokenRequestContext extends TokenRequestContext {
     private final String scope;
     private final String serviceName;
 
