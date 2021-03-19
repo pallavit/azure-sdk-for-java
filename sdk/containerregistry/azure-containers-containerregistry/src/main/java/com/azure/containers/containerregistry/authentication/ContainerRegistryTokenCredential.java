@@ -9,11 +9,13 @@ import com.azure.core.credential.TokenCredential;
 import com.azure.core.credential.TokenRequestContext;
 import reactor.core.publisher.Mono;
 
+import java.awt.*;
+
 /**
  * Token credentials representing the container registry refresh token.
  * This token is unique per registry operation.
  */
-class ContainerRegistryTokenCredential {
+class ContainerRegistryTokenCredential implements TokenCredential {
 
     private final TokenCredential tokenCredential;
     private final TokenServiceImpl tokenService;
@@ -34,8 +36,12 @@ class ContainerRegistryTokenCredential {
      *
      * @param context the context for the token to be generated.
      */
-    public Mono<AccessToken> getToken(ContainerRegistryTokenRequestContext context) {
-        String serviceName = context.getServiceName();
+    @Override
+    public Mono<AccessToken> getToken(TokenRequestContext context) {
+
+        ContainerRegistryTokenRequestContext containerRegistryTokenRequestContext = (ContainerRegistryTokenRequestContext)context;
+
+        String serviceName = containerRegistryTokenRequestContext.getServiceName();
 
         return Mono.defer(() -> tokenCredential.getToken(new TokenRequestContext().addScopes(AAD_DEFAULT_SCOPE))
             .flatMap(token -> this.tokenService.getAcrRefreshTokenAsync(token.getToken(), serviceName)));

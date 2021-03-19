@@ -3,21 +3,17 @@
 
 package com.azure.containers.containerregistry.authentication;
 
-import com.azure.core.credential.TokenCredential;
-import com.azure.core.http.HttpPipeline;
 import com.azure.core.http.HttpPipelineCallContext;
 import com.azure.core.http.HttpPipelineNextPolicy;
 import com.azure.core.http.HttpResponse;
 import com.azure.core.http.policy.HttpPipelinePolicy;
 import com.azure.core.util.logging.ClientLogger;
-import com.azure.core.util.serializer.SerializerAdapter;
 import reactor.core.publisher.Mono;
 
-
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.HashMap;
 
 /**
  * Credential policy for the container registry.
@@ -59,21 +55,9 @@ public class ContainerRegistryCredentialsPolicy implements HttpPipelinePolicy {
     /**
      * Creates an instance of ContainerRegistryCredentialsPolicy.
      *
-     * @param credential the AAD credentials passed to the client.
-     * @param url the url for the container registry.
-     * @param pipeline the http pipeline to be used to make the rest calls.
-     * @param serializerAdapter the serializer adapter to be used to make the rest calls.
-     */
-    public ContainerRegistryCredentialsPolicy(TokenCredential credential, String url, HttpPipeline pipeline, SerializerAdapter serializerAdapter) {
-        this(new ContainerRegistryTokenService(credential, url, pipeline, serializerAdapter));
-    }
-
-    /**
-     * Creates an instance of ContainerRegistryCredentialsPolicy.
-     *
      * @param tokenService the token generation service.
      */
-    ContainerRegistryCredentialsPolicy(ContainerRegistryTokenService tokenService) {
+    public ContainerRegistryCredentialsPolicy(ContainerRegistryTokenService tokenService) {
         this.tokenService = tokenService;
     }
 
