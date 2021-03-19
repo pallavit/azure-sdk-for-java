@@ -6,6 +6,8 @@ package com.azure.containers.containerregistry.authentication;
 import com.azure.containers.containerregistry.implementation.authentication.TokenServiceImpl;
 import com.azure.core.credential.AccessToken;
 import com.azure.core.credential.TokenCredential;
+import com.azure.core.experimental.credential.AccessTokenCache;
+import com.azure.core.experimental.credential.TokenSupplier;
 import com.azure.core.http.HttpPipeline;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.serializer.SerializerAdapter;
@@ -17,7 +19,7 @@ import java.util.Objects;
  * A token service for obtaining tokens to be used by the container registry service.
  */
 class ContainerRegistryTokenService {
-    private AccessTokenCache refreshTokenCache;
+    private AccessTokenCache<ContainerRegistryTokenCredential, ContainerRegistryTokenRequestContext> refreshTokenCache;
     private TokenServiceImpl tokenService;
     private final ClientLogger logger = new ClientLogger(ContainerRegistryTokenService.class);
 
@@ -36,7 +38,8 @@ class ContainerRegistryTokenService {
         Objects.requireNonNull(serializerAdapter);
 
         this.tokenService = new TokenServiceImpl(url, pipeline, serializerAdapter);
-        this.refreshTokenCache = new AccessTokenCache(new ContainerRegistryTokenCredential(tokenService, tokenCredential));
+        this.refreshTokenCache = new AccessTokenCache<ContainerRegistryTokenCredential, ContainerRegistryTokenRequestContext>(new TokenSupplier<ContainerRegistryTokenCredential, ContainerRegistryTokenRequestContext>(
+            new ContainerRegistryTokenCredential(tokenService, tokenCredential)));
     }
 
     ContainerRegistryTokenService setTokenService(TokenServiceImpl tokenServiceImpl) {
@@ -44,7 +47,7 @@ class ContainerRegistryTokenService {
         return this;
     }
 
-    ContainerRegistryTokenService setRefreshTokenCache(AccessTokenCache tokenCache) {
+    ContainerRegistryTokenService setRefreshTokenCache(AccessTokenCache<ContainerRegistryTokenCredential, ContainerRegistryTokenRequestContext> tokenCache) {
         this.refreshTokenCache = tokenCache;
         return this;
     }
