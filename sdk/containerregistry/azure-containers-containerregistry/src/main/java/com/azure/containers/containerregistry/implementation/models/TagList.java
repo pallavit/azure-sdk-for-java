@@ -14,7 +14,7 @@ public final class TagList {
     /*
      * Image name
      */
-    @JsonProperty(value = "imageName")
+    @JsonProperty(value = "imageName", required = true)
     private String repository;
 
     /*

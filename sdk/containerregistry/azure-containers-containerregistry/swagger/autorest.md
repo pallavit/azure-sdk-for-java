@@ -40,6 +40,6 @@ add-context-parameter: true
 context-client-method-parameter: true
 service-interface-as-public: true 
 models-subpackage: implementation.models
-custom-types: AcrErrorsException,DeleteRepositoryResult,AcrErrors
+custom-types: AcrErrorsException,DeleteRepositoryResult,AcrErrors,RepositoryProperties,ContentProperties,TagProperties,RegistryArtifactProperties
 custom-types-subpackage: models
 ```

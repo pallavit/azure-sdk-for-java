@@ -38,7 +38,7 @@ public class ContainerRegistryClientAsyncTest extends ContainerRegistryClientTes
     }
 
     private ContainerRegistryAsyncClient getContainerRegistryAsyncClient(HttpClient httpClient) {
-        return getContainerRegistryBuilder(httpClient).buildContainerRegistryAsyncClient();
+        return getContainerRegistryBuilder(httpClient).buildAsyncClient();
     }
 
     private void validateListResponse(PagedResponse<String> pagedResponse) {

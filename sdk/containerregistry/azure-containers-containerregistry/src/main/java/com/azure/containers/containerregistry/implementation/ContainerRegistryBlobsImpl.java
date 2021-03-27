@@ -63,7 +63,7 @@ public final class ContainerRegistryBlobsImpl {
      * The interface defining all the services for ContainerRegistryContainerRegistryBlobs to be used by the proxy
      * service to perform REST calls.
      */
-    @Host("{endpoint}")
+    @Host("{url}")
     @ServiceInterface(name = "ContainerRegistryCon")
     public interface ContainerRegistryBlobsService {
         @Get("/v2/{name}/blobs/{digest}")
@@ -135,7 +135,7 @@ public final class ContainerRegistryBlobsImpl {
                 @QueryParam("digest") String digest,
                 @PathParam(value = "nextBlobUuidLink", encoded = true) String location,
                 @BodyParam("application/octet-stream") Flux<ByteBuffer> value,
-                @HeaderParam("Content-Length") long contentLength,
+                @HeaderParam("Content-Length") Long contentLength,
                 @HeaderParam("Accept") String accept,
                 Context context);
 
@@ -619,7 +619,7 @@ public final class ContainerRegistryBlobsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<ContainerRegistryBlobsCompleteUploadResponse> completeUploadWithResponseAsync(
-            String digest, String location, Flux<ByteBuffer> value, long contentLength) {
+            String digest, String location, Flux<ByteBuffer> value, Long contentLength) {
         final String accept = "application/json";
         return FluxUtil.withContext(
                 context ->
@@ -644,7 +644,7 @@ public final class ContainerRegistryBlobsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<ContainerRegistryBlobsCompleteUploadResponse> completeUploadWithResponseAsync(
-            String digest, String location, Flux<ByteBuffer> value, long contentLength, Context context) {
+            String digest, String location, Flux<ByteBuffer> value, Long contentLength, Context context) {
         final String accept = "application/json";
         return service.completeUpload(
                 this.client.getEndpoint(), digest, location, value, contentLength, accept, context);
@@ -665,7 +665,7 @@ public final class ContainerRegistryBlobsImpl {
      * @return the completion.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> completeUploadAsync(String digest, String location, Flux<ByteBuffer> value, long contentLength) {
+    public Mono<Void> completeUploadAsync(String digest, String location, Flux<ByteBuffer> value, Long contentLength) {
         return completeUploadWithResponseAsync(digest, location, value, contentLength)
                 .flatMap((ContainerRegistryBlobsCompleteUploadResponse res) -> Mono.empty());
     }
@@ -687,7 +687,7 @@ public final class ContainerRegistryBlobsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> completeUploadAsync(
-            String digest, String location, Flux<ByteBuffer> value, long contentLength, Context context) {
+            String digest, String location, Flux<ByteBuffer> value, Long contentLength, Context context) {
         return completeUploadWithResponseAsync(digest, location, value, contentLength, context)
                 .flatMap((ContainerRegistryBlobsCompleteUploadResponse res) -> Mono.empty());
     }

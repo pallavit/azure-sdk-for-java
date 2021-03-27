@@ -6,7 +6,7 @@
     "version": "2019-08-15-preview"
   },
   "x-ms-parameterized-host": {
-    "hostTemplate": "{endpoint}",
+    "hostTemplate": "{url}",
     "useSchemePrefix": false,
     "positionInOperation": "first",
     "parameters": [
@@ -638,7 +638,7 @@
           "Registry"
         ],
         "description": "Get repository attributes",
-        "operationId": "ContainerRegistryRepository_ListProperties",
+        "operationId": "ContainerRegistryRepository_GetProperties",
         "x-ms-examples": {
           "Get details of repository": {
             "$ref": "./examples/GetRepositoryAttributes.json"
@@ -742,7 +742,7 @@
           "Repository"
         ],
         "description": "List tags of a repository",
-        "operationId": "ContainerRegistryRepository_GetTags",
+        "operationId": "ContainerRegistryRepository_ListTags",
         "x-ms-examples": {
           "Get tags of a repository": {
             "$ref": "./examples/GetTagList.json"
@@ -904,7 +904,7 @@
           "Repository"
         ],
         "description": "List manifests of a repository",
-        "operationId": "ContainerRegistryRepository_GetManifests",
+        "operationId": "ContainerRegistryRepository_ListManifests",
         "x-ms-examples": {
           "Get list of available manifests": {
             "$ref": "./examples/GetManifestList.json"
@@ -1030,7 +1030,7 @@
           "RefreshToken"
         ],
         "description": "Exchange AAD tokens for an ACR refresh Token",
-        "operationId": "RefreshTokens_GetFromExchange",
+        "operationId": "Authentication_ExchangeAadAccessTokenForAcrRefreshToken",
         "consumes": [
           "application/x-www-form-urlencoded"
         ],
@@ -1042,18 +1042,12 @@
             "$ref": "#/parameters/Service"
           },
           {
-            "$ref": "#/parameters/Tenant"
-          },
-          {
-            "$ref": "#/parameters/RefreshToken"
-          },
-          {
             "$ref": "#/parameters/AccessToken"
           }
         ],
         "responses": {
           "200": {
-            "description": "Refresh token acquired",
+            "description": "ACR refresh token acquired",
             "schema": {
               "$ref": "#/definitions/RefreshToken"
             }
@@ -1080,7 +1074,7 @@
           "AccessToken"
         ],
         "description": "Exchange ACR Refresh token for an ACR Access Token",
-        "operationId": "AccessTokens_Get",
+        "operationId": "Authentication_ExchangeAcrRefreshTokenForAcrAccessToken",
         "consumes": [
           "application/x-www-form-urlencoded"
         ],
@@ -1107,6 +1101,7 @@
           },
           {
             "name": "refresh_token",
+            "x-ms-client-name": "acrRefreshToken",
             "in": "formData",
             "required": true,
             "description": "Must be a valid ACR refresh token",
@@ -1115,7 +1110,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Access token acquired",
+            "description": "ACR access token acquired",
             "schema": {
               "$ref": "#/definitions/AccessToken"
             }
@@ -1131,55 +1126,6 @@
         "x-ms-examples": {
           "Get Access Token with Refresh Token": {
             "$ref": "./examples/PostAccessToken.json"
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "AcrToken",
-          "AccessToken",
-          "userLogin"
-        ],
-        "description": "Exchange Username, Password and Scope an ACR Access Token",
-        "operationId": "AccessTokens_GetFromLogin",
-        "parameters": [
-          {
-            "name": "service",
-            "in": "query",
-            "required": true,
-            "description": "Indicates the name of your Azure container registry.",
-            "type": "string"
-          },
-          {
-            "name": "scope",
-            "in": "query",
-            "required": true,
-            "description": "Expected to be a valid scope, and can be specified more than once for multiple scope requests. You can obtain this from the Www-Authenticate response header from the challenge.",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Access token acquired",
-            "schema": {
-              "$ref": "#/definitions/AccessToken"
-            }
-          },
-          "default": {
-            "description": "ACR error response describing why the operation failed.",
-            "schema": {
-              "$ref": "#/definitions/AcrErrors"
-            }
-          }
-        },
-        "security": [
-          {
-            "registry_auth": []
-          }
-        ],
-        "x-ms-examples": {
-          "Get Access Token with username and password": {
-            "$ref": "./examples/GetAccessToken.json"
           }
         }
       }
@@ -1334,10 +1280,12 @@
   "definitions": {
     "RepositoryAttributes": {
       "required": [
+        "imageName",
         "createdTime",
-        "lastUpdatetime",
+        "lastUpdateTime",
         "manifestCount",
-        "tagCount"
+        "tagCount",
+        "changeableAttributes"
       ],
       "x-ms-client-name": "RepositoryProperties",
       "type": "object",
@@ -1391,6 +1339,9 @@
       }
     },
     "TagList": {
+      "required": [
+        "imageName"
+      ],
       "description": "List of tag details",
       "x-accessibility": "internal",
       "properties": {
@@ -1444,6 +1395,10 @@
       }
     },
     "TagAttributes": {
+      "required": [
+        "imageName",
+        "tag"
+      ],
       "x-ms-client-name": "TagProperties",
       "description": "Tag attributes",
       "properties": {
@@ -1524,6 +1479,30 @@
         "lastUpdateTime": "2018-08-10T17:28:44.1082945Z"
       }
     },
+    "TagOrderBy": {
+      "type": "string",
+      "enum": [
+        "time_desc",
+        "time_asc"
+      ],
+      "x-ms-enum": {
+        "name": "TagOrderBy",
+        "modelAsString": true,
+        "values": [
+          {
+            "value": "time_desc",
+            "name": "LastUpdatedOnDescending",
+            "description": "Order tags by LastUpdatedOn field, from most recently updated to least recently updated."
+          },
+          {
+            "value": "time_asc",
+            "name": "LastUpdatedOnAscending",
+            "description": "Order tags by LastUpdatedOn field, from least recently updated to most recently updated."
+          }
+        ]
+      },
+      "x-accessibility": "public"
+    },
     "AcrManifests": {
       "description": "Manifest attributes",
       "properties": {
@@ -1599,7 +1578,8 @@
     "ManifestAttributes": {
       "required": [
         "registry",
-        "imageName"
+        "imageName",
+        "manifest"
       ],
       "x-ms-client-name": "RegistryArtifactProperties",
       "description": "Manifest attributes details",
@@ -1642,9 +1622,8 @@
     "ManifestAttributesBase": {
       "required": [
         "digest",
-        "architecture",
-        "os",
-        "tags"
+        "tags",
+        "changeableAttributes"
       ],
       "type": "object",
       "description": "Manifest details",
@@ -1682,16 +1661,14 @@
           "description": "Operating system",
           "x-ms-client-name": "operatingSystem"
         },
-        "mediaType": {
-          "x-accessibility": "internal",
-          "type": "string",
-          "description": "Media type",
-          "x-ms-client-name": "manifestMediaType"
-        },
-        "configMediaType": {
-          "x-accessibility": "internal",
-          "type": "string",
-          "description": "Config blob media type"
+        "references": {
+          "x-ms-client-name": "registryArtifacts",
+          "type": "array",
+          "description": "List of manifest attributes details",
+          "items": {
+            "$ref": "#/definitions/ManifestAttributes_manifest_references",
+            "description": "Manifest attributes details"
+          }
         },
         "tags": {
           "type": "array",
@@ -1736,7 +1713,34 @@
           "type": "string"
         }
       },
-      "x-accessibility": "internal"
+      "x-accessibility": "internal",
+      "x-ms-client-name": "AcrRefreshToken"
+    },
+    "ManifestOrderBy": {
+      "type": "string",
+      "enum": [
+        "time_desc",
+        "time_asc"
+      ],
+      "x-ms-enum": {
+        "name": "RegistryArtifactOrderBy",
+        "modelAsString": true,
+        "values": [
+          {
+            "value": "time_desc",
+            "name": "LastUpdatedOnDescending",
+            "description": "Order registry artifacts by LastUpdatedOn field, from most recently updated to least recently updated."
+          },
+          {
+            "value": "time_asc",
+            "name": "LastUpdatedOnAscending",
+            "description": "Order  registry artifacts by LastUpdatedOn field, from least recently updated to most recently updated."
+          }
+        ]
+      },
+      "default": "none",
+      "description": "Sort options for ordering registry artifacts in a collection.",
+      "x-accessibility": "public"
     },
     "AccessToken": {
       "type": "object",
@@ -1746,7 +1750,8 @@
           "type": "string"
         }
       },
-      "x-accessibility": "internal"
+      "x-accessibility": "internal",
+      "x-ms-client-name": "AcrAccessToken"
     },
     "AcrErrors": {
       "description": "Acr error response describing why the operation failed",
@@ -2022,6 +2027,11 @@
       }
     },
     "ManifestAttributes_manifest_references": {
+      "required": [
+        "digest",
+        "architecture",
+        "os"
+      ],
       "description": "Manifest attributes details",
       "properties": {
         "digest": {
@@ -2030,11 +2040,13 @@
         },
         "architecture": {
           "type": "string",
-          "description": "CPU architecture"
+          "description": "CPU architecture",
+          "x-ms-client-name": "cpuArchitecture"
         },
         "os": {
           "type": "string",
-          "description": "Operating system"
+          "description": "Operating system",
+          "x-ms-client-name": "operatingSystem"
         }
       },
       "example": {
@@ -2486,7 +2498,7 @@
     "Url": {
       "name": "endpoint",
       "x-ms-client-name": "loginUri",
-      "description": "Registry login endpoint",
+      "description": "Registry login URL",
       "required": true,
       "type": "string",
       "in": "path",
@@ -2585,14 +2597,12 @@
     },
     "Grant_type": {
       "name": "grant_type",
-      "description": "Can take a value of access_token_refresh_token, or access_token, or refresh_token",
+      "description": "Can take a value of access_token",
       "type": "string",
       "in": "formData",
       "required": true,
       "enum": [
-        "access_token_refresh_token",
-        "access_token",
-        "refresh_token"
+        "access_token"
       ],
       "x-ms-parameter-location": "method",
       "x-accessibility": "internal"
@@ -2631,8 +2641,9 @@
     },
     "AccessToken": {
       "name": "access_token",
+      "x-ms-client-name": "aadAccesstoken",
       "in": "formData",
-      "required": false,
+      "required": true,
       "description": "AAD access token, mandatory when grant_type is access_token_refresh_token or access_token.",
       "type": "string",
       "x-ms-parameter-location": "method"

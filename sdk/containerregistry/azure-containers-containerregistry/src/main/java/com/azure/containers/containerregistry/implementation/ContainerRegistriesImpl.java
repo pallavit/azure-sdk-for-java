@@ -53,7 +53,7 @@ public final class ContainerRegistriesImpl {
      * The interface defining all the services for ContainerRegistryContainerRegistries to be used by the proxy service
      * to perform REST calls.
      */
-    @Host("{endpoint}")
+    @Host("{url}")
     @ServiceInterface(name = "ContainerRegistryCon")
     public interface ContainerRegistriesService {
         @Get("/v2/")
@@ -189,15 +189,15 @@ public final class ContainerRegistriesImpl {
     public Mono<PagedResponse<String>> listRepositoriesSinglePageAsync(String last, Integer n, Context context) {
         final String accept = "application/json";
         return service.listRepositories(this.client.getEndpoint(), last, n, accept, context)
-            .map(
-                res ->
-                    new PagedResponseBase<>(
-                        res.getRequest(),
-                        res.getStatusCode(),
-                        res.getHeaders(),
-                        res.getValue().getRepositories(),
-                        res.getValue().getLink(),
-                        res.getDeserializedHeaders()));
+                .map(
+                        res ->
+                                new PagedResponseBase<>(
+                                        res.getRequest(),
+                                        res.getStatusCode(),
+                                        res.getHeaders(),
+                                        res.getValue().getRepositories(),
+                                        res.getValue().getLink(),
+                                        res.getDeserializedHeaders()));
     }
 
     /**

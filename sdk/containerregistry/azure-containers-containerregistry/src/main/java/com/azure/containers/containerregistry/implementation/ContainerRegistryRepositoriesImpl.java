@@ -5,18 +5,18 @@
 package com.azure.containers.containerregistry.implementation;
 
 import com.azure.containers.containerregistry.implementation.models.ContainerRegistryRepositoriesCreateManifestResponse;
-import com.azure.containers.containerregistry.implementation.models.ContainerRegistryRepositoriesGetManifestsNextResponse;
-import com.azure.containers.containerregistry.implementation.models.ContainerRegistryRepositoriesGetManifestsResponse;
-import com.azure.containers.containerregistry.implementation.models.ContainerRegistryRepositoriesGetTagsNextResponse;
-import com.azure.containers.containerregistry.implementation.models.ContainerRegistryRepositoriesGetTagsResponse;
-import com.azure.containers.containerregistry.implementation.models.ContentProperties;
+import com.azure.containers.containerregistry.implementation.models.ContainerRegistryRepositoriesListManifestsNextResponse;
+import com.azure.containers.containerregistry.implementation.models.ContainerRegistryRepositoriesListManifestsResponse;
+import com.azure.containers.containerregistry.implementation.models.ContainerRegistryRepositoriesListTagsNextResponse;
+import com.azure.containers.containerregistry.implementation.models.ContainerRegistryRepositoriesListTagsResponse;
 import com.azure.containers.containerregistry.implementation.models.Manifest;
 import com.azure.containers.containerregistry.implementation.models.ManifestAttributesBase;
-import com.azure.containers.containerregistry.implementation.models.RegistryArtifactProperties;
-import com.azure.containers.containerregistry.implementation.models.RepositoryProperties;
 import com.azure.containers.containerregistry.implementation.models.TagAttributesBase;
-import com.azure.containers.containerregistry.implementation.models.TagProperties;
 import com.azure.containers.containerregistry.models.AcrErrorsException;
+import com.azure.containers.containerregistry.models.ContentProperties;
+import com.azure.containers.containerregistry.models.RegistryArtifactProperties;
+import com.azure.containers.containerregistry.models.RepositoryProperties;
+import com.azure.containers.containerregistry.models.TagProperties;
 import com.azure.core.annotation.BodyParam;
 import com.azure.core.annotation.Delete;
 import com.azure.core.annotation.ExpectedResponses;
@@ -67,7 +67,7 @@ public final class ContainerRegistryRepositoriesImpl {
      * The interface defining all the services for ContainerRegistryContainerRegistryRepositories to be used by the
      * proxy service to perform REST calls.
      */
-    @Host("{endpoint}")
+    @Host("{url}")
     @ServiceInterface(name = "ContainerRegistryCon")
     public interface ContainerRegistryRepositoriesService {
         @Get("/v2/{name}/manifests/{reference}")
@@ -105,7 +105,7 @@ public final class ContainerRegistryRepositoriesImpl {
         @Get("/acr/v1/{name}")
         @ExpectedResponses({200})
         @UnexpectedResponseExceptionType(AcrErrorsException.class)
-        Mono<Response<RepositoryProperties>> listProperties(
+        Mono<Response<RepositoryProperties>> getProperties(
                 @HostParam("endpoint") String endpoint,
                 @PathParam("name") String name,
                 @HeaderParam("Accept") String accept,
@@ -124,7 +124,7 @@ public final class ContainerRegistryRepositoriesImpl {
         @Get("/acr/v1/{name}/_tags")
         @ExpectedResponses({200})
         @UnexpectedResponseExceptionType(AcrErrorsException.class)
-        Mono<ContainerRegistryRepositoriesGetTagsResponse> getTags(
+        Mono<ContainerRegistryRepositoriesListTagsResponse> listTags(
                 @HostParam("endpoint") String endpoint,
                 @PathParam("name") String name,
                 @QueryParam("last") String last,
@@ -168,7 +168,7 @@ public final class ContainerRegistryRepositoriesImpl {
         @Get("/acr/v1/{name}/_manifests")
         @ExpectedResponses({200})
         @UnexpectedResponseExceptionType(AcrErrorsException.class)
-        Mono<ContainerRegistryRepositoriesGetManifestsResponse> getManifests(
+        Mono<ContainerRegistryRepositoriesListManifestsResponse> listManifests(
                 @HostParam("endpoint") String endpoint,
                 @PathParam("name") String name,
                 @QueryParam("last") String last,
@@ -201,7 +201,7 @@ public final class ContainerRegistryRepositoriesImpl {
         @Get("{nextLink}")
         @ExpectedResponses({200})
         @UnexpectedResponseExceptionType(AcrErrorsException.class)
-        Mono<ContainerRegistryRepositoriesGetTagsNextResponse> getTagsNext(
+        Mono<ContainerRegistryRepositoriesListTagsNextResponse> listTagsNext(
                 @PathParam(value = "nextLink", encoded = true) String nextLink,
                 @HostParam("endpoint") String endpoint,
                 @HeaderParam("Accept") String accept,
@@ -210,7 +210,7 @@ public final class ContainerRegistryRepositoriesImpl {
         @Get("{nextLink}")
         @ExpectedResponses({200})
         @UnexpectedResponseExceptionType(AcrErrorsException.class)
-        Mono<ContainerRegistryRepositoriesGetManifestsNextResponse> getManifestsNext(
+        Mono<ContainerRegistryRepositoriesListManifestsNextResponse> listManifestsNext(
                 @PathParam(value = "nextLink", encoded = true) String nextLink,
                 @HostParam("endpoint") String endpoint,
                 @HeaderParam("Accept") String accept,
@@ -471,10 +471,9 @@ public final class ContainerRegistryRepositoriesImpl {
      * @return repository attributes.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<RepositoryProperties>> listPropertiesWithResponseAsync(String name) {
+    public Mono<Response<RepositoryProperties>> getPropertiesWithResponseAsync(String name) {
         final String accept = "application/json";
-        return FluxUtil.withContext(
-                context -> service.listProperties(this.client.getEndpoint(), name, accept, context));
+        return FluxUtil.withContext(context -> service.getProperties(this.client.getEndpoint(), name, accept, context));
     }
 
     /**
@@ -488,9 +487,9 @@ public final class ContainerRegistryRepositoriesImpl {
      * @return repository attributes.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<RepositoryProperties>> listPropertiesWithResponseAsync(String name, Context context) {
+    public Mono<Response<RepositoryProperties>> getPropertiesWithResponseAsync(String name, Context context) {
         final String accept = "application/json";
-        return service.listProperties(this.client.getEndpoint(), name, accept, context);
+        return service.getProperties(this.client.getEndpoint(), name, accept, context);
     }
 
     /**
@@ -503,8 +502,8 @@ public final class ContainerRegistryRepositoriesImpl {
      * @return repository attributes.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<RepositoryProperties> listPropertiesAsync(String name) {
-        return listPropertiesWithResponseAsync(name)
+    public Mono<RepositoryProperties> getPropertiesAsync(String name) {
+        return getPropertiesWithResponseAsync(name)
                 .flatMap(
                         (Response<RepositoryProperties> res) -> {
                             if (res.getValue() != null) {
@@ -526,8 +525,8 @@ public final class ContainerRegistryRepositoriesImpl {
      * @return repository attributes.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<RepositoryProperties> listPropertiesAsync(String name, Context context) {
-        return listPropertiesWithResponseAsync(name, context)
+    public Mono<RepositoryProperties> getPropertiesAsync(String name, Context context) {
+        return getPropertiesWithResponseAsync(name, context)
                 .flatMap(
                         (Response<RepositoryProperties> res) -> {
                             if (res.getValue() != null) {
@@ -618,12 +617,12 @@ public final class ContainerRegistryRepositoriesImpl {
      * @return list of tag details.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<PagedResponse<TagAttributesBase>> getTagsSinglePageAsync(
+    public Mono<PagedResponse<TagAttributesBase>> listTagsSinglePageAsync(
             String name, String last, Integer n, String orderby, String digest) {
         final String accept = "application/json";
         return FluxUtil.withContext(
                         context ->
-                                service.getTags(
+                                service.listTags(
                                         this.client.getEndpoint(), name, last, n, orderby, digest, accept, context))
                 .map(
                         res ->
@@ -652,10 +651,10 @@ public final class ContainerRegistryRepositoriesImpl {
      * @return list of tag details.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<PagedResponse<TagAttributesBase>> getTagsSinglePageAsync(
+    public Mono<PagedResponse<TagAttributesBase>> listTagsSinglePageAsync(
             String name, String last, Integer n, String orderby, String digest, Context context) {
         final String accept = "application/json";
-        return service.getTags(this.client.getEndpoint(), name, last, n, orderby, digest, accept, context)
+        return service.listTags(this.client.getEndpoint(), name, last, n, orderby, digest, accept, context)
                 .map(
                         res ->
                                 new PagedResponseBase<>(
@@ -682,11 +681,11 @@ public final class ContainerRegistryRepositoriesImpl {
      * @return list of tag details.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<TagAttributesBase> getTagsAsync(
+    public PagedFlux<TagAttributesBase> listTagsAsync(
             String name, String last, Integer n, String orderby, String digest) {
         return new PagedFlux<>(
-                () -> getTagsSinglePageAsync(name, last, n, orderby, digest),
-                nextLink -> getTagsNextSinglePageAsync(nextLink));
+                () -> listTagsSinglePageAsync(name, last, n, orderby, digest),
+                nextLink -> listTagsNextSinglePageAsync(nextLink));
     }
 
     /**
@@ -705,11 +704,11 @@ public final class ContainerRegistryRepositoriesImpl {
      * @return list of tag details.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<TagAttributesBase> getTagsAsync(
+    public PagedFlux<TagAttributesBase> listTagsAsync(
             String name, String last, Integer n, String orderby, String digest, Context context) {
         return new PagedFlux<>(
-                () -> getTagsSinglePageAsync(name, last, n, orderby, digest, context),
-                nextLink -> getTagsNextSinglePageAsync(nextLink, context));
+                () -> listTagsSinglePageAsync(name, last, n, orderby, digest, context),
+                nextLink -> listTagsNextSinglePageAsync(nextLink, context));
     }
 
     /**
@@ -949,12 +948,12 @@ public final class ContainerRegistryRepositoriesImpl {
      * @return manifest attributes.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<PagedResponse<ManifestAttributesBase>> getManifestsSinglePageAsync(
+    public Mono<PagedResponse<ManifestAttributesBase>> listManifestsSinglePageAsync(
             String name, String last, Integer n, String orderby) {
         final String accept = "application/json";
         return FluxUtil.withContext(
                         context ->
-                                service.getManifests(
+                                service.listManifests(
                                         this.client.getEndpoint(), name, last, n, orderby, accept, context))
                 .map(
                         res ->
@@ -982,10 +981,10 @@ public final class ContainerRegistryRepositoriesImpl {
      * @return manifest attributes.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<PagedResponse<ManifestAttributesBase>> getManifestsSinglePageAsync(
+    public Mono<PagedResponse<ManifestAttributesBase>> listManifestsSinglePageAsync(
             String name, String last, Integer n, String orderby, Context context) {
         final String accept = "application/json";
-        return service.getManifests(this.client.getEndpoint(), name, last, n, orderby, accept, context)
+        return service.listManifests(this.client.getEndpoint(), name, last, n, orderby, accept, context)
                 .map(
                         res ->
                                 new PagedResponseBase<>(
@@ -1011,10 +1010,10 @@ public final class ContainerRegistryRepositoriesImpl {
      * @return manifest attributes.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<ManifestAttributesBase> getManifestsAsync(String name, String last, Integer n, String orderby) {
+    public PagedFlux<ManifestAttributesBase> listManifestsAsync(String name, String last, Integer n, String orderby) {
         return new PagedFlux<>(
-                () -> getManifestsSinglePageAsync(name, last, n, orderby),
-                nextLink -> getManifestsNextSinglePageAsync(nextLink));
+                () -> listManifestsSinglePageAsync(name, last, n, orderby),
+                nextLink -> listManifestsNextSinglePageAsync(nextLink));
     }
 
     /**
@@ -1032,11 +1031,11 @@ public final class ContainerRegistryRepositoriesImpl {
      * @return manifest attributes.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<ManifestAttributesBase> getManifestsAsync(
+    public PagedFlux<ManifestAttributesBase> listManifestsAsync(
             String name, String last, Integer n, String orderby, Context context) {
         return new PagedFlux<>(
-                () -> getManifestsSinglePageAsync(name, last, n, orderby, context),
-                nextLink -> getManifestsNextSinglePageAsync(nextLink, context));
+                () -> listManifestsSinglePageAsync(name, last, n, orderby, context),
+                nextLink -> listManifestsNextSinglePageAsync(nextLink, context));
     }
 
     /**
@@ -1211,10 +1210,10 @@ public final class ContainerRegistryRepositoriesImpl {
      * @return list of tag details.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<PagedResponse<TagAttributesBase>> getTagsNextSinglePageAsync(String nextLink) {
+    public Mono<PagedResponse<TagAttributesBase>> listTagsNextSinglePageAsync(String nextLink) {
         final String accept = "application/json";
         return FluxUtil.withContext(
-                        context -> service.getTagsNext(nextLink, this.client.getEndpoint(), accept, context))
+                        context -> service.listTagsNext(nextLink, this.client.getEndpoint(), accept, context))
                 .map(
                         res ->
                                 new PagedResponseBase<>(
@@ -1237,9 +1236,9 @@ public final class ContainerRegistryRepositoriesImpl {
      * @return list of tag details.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<PagedResponse<TagAttributesBase>> getTagsNextSinglePageAsync(String nextLink, Context context) {
+    public Mono<PagedResponse<TagAttributesBase>> listTagsNextSinglePageAsync(String nextLink, Context context) {
         final String accept = "application/json";
-        return service.getTagsNext(nextLink, this.client.getEndpoint(), accept, context)
+        return service.listTagsNext(nextLink, this.client.getEndpoint(), accept, context)
                 .map(
                         res ->
                                 new PagedResponseBase<>(
@@ -1261,10 +1260,10 @@ public final class ContainerRegistryRepositoriesImpl {
      * @return manifest attributes.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<PagedResponse<ManifestAttributesBase>> getManifestsNextSinglePageAsync(String nextLink) {
+    public Mono<PagedResponse<ManifestAttributesBase>> listManifestsNextSinglePageAsync(String nextLink) {
         final String accept = "application/json";
         return FluxUtil.withContext(
-                        context -> service.getManifestsNext(nextLink, this.client.getEndpoint(), accept, context))
+                        context -> service.listManifestsNext(nextLink, this.client.getEndpoint(), accept, context))
                 .map(
                         res ->
                                 new PagedResponseBase<>(
@@ -1287,10 +1286,10 @@ public final class ContainerRegistryRepositoriesImpl {
      * @return manifest attributes.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<PagedResponse<ManifestAttributesBase>> getManifestsNextSinglePageAsync(
+    public Mono<PagedResponse<ManifestAttributesBase>> listManifestsNextSinglePageAsync(
             String nextLink, Context context) {
         final String accept = "application/json";
-        return service.getManifestsNext(nextLink, this.client.getEndpoint(), accept, context)
+        return service.listManifestsNext(nextLink, this.client.getEndpoint(), accept, context)
                 .map(
                         res ->
                                 new PagedResponseBase<>(

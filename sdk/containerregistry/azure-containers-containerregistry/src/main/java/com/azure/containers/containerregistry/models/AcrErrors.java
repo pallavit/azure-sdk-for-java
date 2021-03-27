@@ -12,7 +12,7 @@ import java.util.List;
 /** Acr error response describing why the operation failed. */
 @Fluent
 public final class AcrErrors {
-    /**
+    /*
      * Array of detailed error
      */
     @JsonProperty(value = "errors")

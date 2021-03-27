@@ -4,6 +4,7 @@
 
 package com.azure.containers.containerregistry.implementation.models;
 
+import com.azure.containers.containerregistry.models.ContentProperties;
 import com.azure.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.OffsetDateTime;
@@ -39,26 +40,20 @@ public final class ManifestAttributesBase {
     /*
      * CPU architecture
      */
-    @JsonProperty(value = "architecture", required = true)
+    @JsonProperty(value = "architecture")
     private String cpuArchitecture;
 
     /*
      * Operating system
      */
-    @JsonProperty(value = "os", required = true)
+    @JsonProperty(value = "os")
     private String operatingSystem;
 
     /*
-     * Media type
+     * List of manifest attributes details
      */
-    @JsonProperty(value = "mediaType")
-    private String manifestMediaType;
-
-    /*
-     * Config blob media type
-     */
-    @JsonProperty(value = "configMediaType")
-    private String configMediaType;
+    @JsonProperty(value = "references")
+    private List<ManifestAttributesManifestReferences> registryArtifacts;
 
     /*
      * List of tags
@@ -69,7 +64,7 @@ public final class ManifestAttributesBase {
     /*
      * Changeable attributes
      */
-    @JsonProperty(value = "changeableAttributes")
+    @JsonProperty(value = "changeableAttributes", required = true)
     private ContentProperties manifestProperties;
 
     /**
@@ -193,42 +188,22 @@ public final class ManifestAttributesBase {
     }
 
     /**
-     * Get the manifestMediaType property: Media type.
+     * Get the registryArtifacts property: List of manifest attributes details.
      *
-     * @return the manifestMediaType value.
+     * @return the registryArtifacts value.
      */
-    public String getManifestMediaType() {
-        return this.manifestMediaType;
+    public List<ManifestAttributesManifestReferences> getRegistryArtifacts() {
+        return this.registryArtifacts;
     }
 
     /**
-     * Set the manifestMediaType property: Media type.
+     * Set the registryArtifacts property: List of manifest attributes details.
      *
-     * @param manifestMediaType the manifestMediaType value to set.
+     * @param registryArtifacts the registryArtifacts value to set.
      * @return the ManifestAttributesBase object itself.
      */
-    public ManifestAttributesBase setManifestMediaType(String manifestMediaType) {
-        this.manifestMediaType = manifestMediaType;
-        return this;
-    }
-
-    /**
-     * Get the configMediaType property: Config blob media type.
-     *
-     * @return the configMediaType value.
-     */
-    public String getConfigMediaType() {
-        return this.configMediaType;
-    }
-
-    /**
-     * Set the configMediaType property: Config blob media type.
-     *
-     * @param configMediaType the configMediaType value to set.
-     * @return the ManifestAttributesBase object itself.
-     */
-    public ManifestAttributesBase setConfigMediaType(String configMediaType) {
-        this.configMediaType = configMediaType;
+    public ManifestAttributesBase setRegistryArtifacts(List<ManifestAttributesManifestReferences> registryArtifacts) {
+        this.registryArtifacts = registryArtifacts;
         return this;
     }
 

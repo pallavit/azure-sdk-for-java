@@ -38,12 +38,12 @@ public final class ContainerRegistryImplBuilder {
     }
 
     /*
-     * Registry login endpoint
+     * Registry login URL
      */
     private String endpoint;
 
     /**
-     * Sets Registry login endpoint.
+     * Sets Registry login URL.
      *
      * @param endpoint the endpoint value.
      * @return the ContainerRegistryImplBuilder.

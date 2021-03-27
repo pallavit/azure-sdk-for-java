@@ -37,7 +37,6 @@ import java.util.function.Supplier;
  * @deprecated use {@link ContinuablePagedFluxCore}.
  */
 @Deprecated
-public class PagedFluxBase<T, P extends PagedResponse<T>> extends ContinuablePagedFluxCore<String, T, P> {
     /**
      * Creates an instance of {@link PagedFluxBase} that consists of only a single page. This constructor takes a {@code
      * Supplier} that return the single page of {@code T}.

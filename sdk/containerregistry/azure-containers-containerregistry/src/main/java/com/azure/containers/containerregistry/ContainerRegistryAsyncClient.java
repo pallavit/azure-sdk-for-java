@@ -5,13 +5,17 @@
 package com.azure.containers.containerregistry;
 
 import com.azure.containers.containerregistry.implementation.ContainerRegistriesImpl;
+import com.azure.containers.containerregistry.implementation.ContainerRegistryImpl;
+import com.azure.containers.containerregistry.implementation.ContainerRegistryImplBuilder;
 import com.azure.containers.containerregistry.models.AcrErrorsException;
 import com.azure.containers.containerregistry.models.DeleteRepositoryResult;
 import com.azure.containers.containerregistry.models.ListRepositoriesOptions;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceClient;
 import com.azure.core.annotation.ServiceMethod;
+import com.azure.core.credential.TokenCredential;
 import com.azure.core.http.HttpHeaders;
+import com.azure.core.http.HttpPipeline;
 import com.azure.core.http.rest.PagedFlux;
 import com.azure.core.http.rest.PagedResponse;
 import com.azure.core.http.rest.PagedResponseBase;
@@ -19,8 +23,12 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.util.Context;
 import com.azure.core.util.CoreUtils;
 import com.azure.core.util.logging.ClientLogger;
+import com.azure.core.util.paging.ContinuablePage;
+import com.azure.core.util.paging.ContinuablePagedFluxCore;
+import com.azure.core.util.serializer.SerializerAdapter;
 import reactor.core.publisher.Mono;
 
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,19 +40,20 @@ import static com.azure.core.util.FluxUtil.withContext;
  */
 @ServiceClient(builder = ContainerRegistryClientBuilder.class, isAsync = true)
 public final class ContainerRegistryAsyncClient {
-    private final ContainerRegistriesImpl serviceClient;
+    private final ContainerRegistryImpl registryImplClient;
+    private final ContainerRegistriesImpl registriesImplClient;
     private final ClientLogger logger = new ClientLogger(ContainerRegistryAsyncClient.class);
     private static final String CONTINUATIONLINKHEADERNAME = "Link";
     private static final String LINKMATCHER = "(<(.+)>;.*)";
     private static final String ORDERBYQUERYPARAM = "&orderby=";
 
-    /**
-     * Initializes an instance of ContainerRegistries client.
-     *
-     * @param serviceClient the service client implementation.
-     */
-    ContainerRegistryAsyncClient(ContainerRegistriesImpl serviceClient) {
-        this.serviceClient = serviceClient;
+    ContainerRegistryAsyncClient(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String endpoint) {
+        this.registryImplClient = new ContainerRegistryImplBuilder()
+            .endpoint(endpoint)
+            .pipeline(httpPipeline)
+            .serializerAdapter(serializerAdapter).buildClient();
+
+        this.registriesImplClient = this.registryImplClient.getContainerRegistries();
     }
 
     /**
@@ -116,7 +125,7 @@ public final class ContainerRegistryAsyncClient {
 
     Mono<PagedResponse<String>> listRepositoriesSinglePageAsync(Integer pageSize, Context context) {
         try {
-            Mono<PagedResponse<String>> pagedResponseMono = this.serviceClient.listRepositoriesSinglePageAsync(null, pageSize, context)
+            Mono<PagedResponse<String>> pagedResponseMono = this.registriesImplClient.listRepositoriesSinglePageAsync(null, pageSize, context)
                 .map(res -> getPagedResponseWithContinuationToken(res));
 
             return pagedResponseMono;
@@ -132,7 +141,7 @@ public final class ContainerRegistryAsyncClient {
         }
 
         try {
-            Mono<PagedResponse<String>> pagedResponseMono = this.serviceClient.listRepositoriesNextSinglePageAsync(nextLink, context);
+            Mono<PagedResponse<String>> pagedResponseMono = this.registriesImplClient.listRepositoriesNextSinglePageAsync(nextLink, context);
             return pagedResponseMono.map(res -> getPagedResponseWithContinuationToken(res));
         } catch (RuntimeException e) {
             return monoError(logger, e);
@@ -159,7 +168,7 @@ public final class ContainerRegistryAsyncClient {
             throw logger.logExceptionAsError(new NullPointerException("repository name can't be null or empty."));
         }
 
-        return this.serviceClient.deleteRepositoryWithResponseAsync(name, context);
+        return this.registriesImplClient.deleteRepositoryWithResponseAsync(name, context);
     }
 
     /**
@@ -181,6 +190,6 @@ public final class ContainerRegistryAsyncClient {
             throw logger.logExceptionAsError(new NullPointerException("repository name can't be null or empty."));
         }
 
-        return this.serviceClient.deleteRepositoryAsync(name, context);
+        return this.registriesImplClient.deleteRepositoryAsync(name, context);
     }
 }
