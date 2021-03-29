@@ -13,10 +13,12 @@
     <option name="TEST_OBJECT" value="class" />
     <option name="VM_PARAMETERS" value="-ea -DproxySet=true   -DproxyHost=127.0.0.1   -DproxyPort=8888  -Djavax.net.ssl.trustStore=&quot;c:\Program Files\AdoptOpenJDK\jdk-8.0.282.8-hotspot\jre\lib\security\cacerts&quot;   -Djavax.net.ssl.trustStorePassword=&quot;changeit&quot;" />
     <envs>
-      <env name="AZURE_TEST_MODE" value="PLAYBACK" />
+      <env name="AZURE_TEST_MODE" value="RECORD" />
       <env name="CONTAINERREGISTRY_USERNAME" value="pallavitcontainerregistry" />
       <env name="CONTAINERREGISTRY_PASSWORD" value="in4aIQzQiaFQchLEMGKIm1PJyuT=dVoS" />
       <env name="AZURE_LOG_LEVEL" value="1" />
+      <env name="AZURE_CLIENT_ID" value="2bf04dc2-527b-4842-83de-6455e74da237" />
+      <env name="AZURE_CLIENT_SECRET" value="eLf3aKmY_.nIYzXu9ZJIy4~k6g9.T~lJ0Y" />
     </envs>
     <method v="2">
       <option name="Make" enabled="true" />
