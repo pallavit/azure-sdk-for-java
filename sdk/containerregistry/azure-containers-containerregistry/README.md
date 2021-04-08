@@ -9,8 +9,7 @@ Use the client library for Azure Container Registry to:
 - Set read/write/delete properties on registry items
 - Delete images and artifacts, repositories and tags
 
-[Source code][source_code] | [Package (Maven)][package] | [API reference documentation][api_docs]
-| [Product documentation][product_docs] | [Samples][samples]
+[Source code][source_code] | [Package (Maven)][package] | [Product documentation][product_docs] | [Samples][samples]
 
 ## Getting started
 
@@ -131,11 +130,11 @@ public void getPropertiesThrows() {
     .buildClient();
 
     try {
-    client.getProperties();
+        client.getProperties();
     } catch (HttpResponseException exception) {
-    // Do something with the exception.
+        // Do something with the exception.
     }
-    }
+}
 ```
 
 ## Next steps
@@ -156,15 +155,13 @@ For more information see the [Code of Conduct FAQ][coc_faq]
 or contact [opencode@microsoft.com][coc_contact] with any
 additional questions or comments.
 
-![Impressions](https://azure-sdk-impressions.azurewebsites.net/api/impressions/azure-sdk-for-net%2Fsdk%2Fcontainerregistry%2FAzure.Containers.ContainerRegistry%2FREADME.png)
-
 <!-- LINKS -->
-[source_code]: https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/containerregistry/Azure.Containers.ContainerRegistry/src
-[package]: https://www.nuget.org/packages/Azure.Containers.ContainerRegistry/
-[docs]: https://docs.microsoft.com/dotnet/api/azure.containers.containerregistry
+[source_code]: https://github.com/Azure/azure-sdk-for-java/tree/master/sdk/containerregistry/azure-containers-containerregistry/src
+[jdk]: https://docs.microsoft.com/java/azure/jdk/?view=azure-java-stable
+[package]: https://search.maven.org/artifact/com.azure/azure-containers-containerregisty
+[api_documentation]: https://aka.ms/java-docs
 [rest_docs]: https://docs.microsoft.com/rest/api/containerregistry/
 [product_docs]:  https://docs.microsoft.com/azure/container-registry
-[nuget]: https://www.nuget.org/
 [container_registry_docs]: https://docs.microsoft.com/azure/container-registry/container-registry-intro
 [container_registry_create_ps]: https://docs.microsoft.com/azure/container-registry/container-registry-get-started-powershell
 [container_registry_create_cli]: https://docs.microsoft.com/azure/container-registry/container-registry-get-started-azure-cli
@@ -174,8 +171,9 @@ additional questions or comments.
 [azure_sub]: https://azure.microsoft.com/free/
 [identity]: https://github.com/Azure/azure-sdk-for-java/blob/master/sdk/identity/azure-identity/README.md
 [HttpResponseException]: https://github.com/Azure/azure-sdk-for-java/blob/master/sdk/core/azure-core/src/main/java/com/azure/core/exception/HttpResponseException.java
-[samples]: https://github.com/Azure/azure-sdk-for-net/blob/master/sdk/containerregistry/Azure.Containers.ContainerRegistry/samples/
+[samples]: https://github.com/Azure/azure-sdk-for-java/tree/master/sdk/containerregistry/azure-containers-containerregistry/src/samples/
 [cla]: https://cla.microsoft.com
 [coc]: https://opensource.microsoft.com/codeofconduct/
 [coc_faq]: https://opensource.microsoft.com/codeofconduct/faq/
 [coc_contact]: mailto:opencode@microsoft.com
+![Impressions](https://azure-sdk-impressions.azurewebsites.net/api/impressions/azure-sdk-for-java%2Fsdk%2Fcontainerregistry%2Fazure-contianers-containerregistry%2FREADME.png)
