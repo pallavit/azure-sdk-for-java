@@ -4,6 +4,7 @@
 
 package com.azure.containers.containerregistry.implementation.models;
 
+import com.azure.containers.containerregistry.models.ContentProperties;
 import com.azure.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.OffsetDateTime;
@@ -14,7 +15,7 @@ public final class RepositoryProperties {
     /*
      * Image name
      */
-    @JsonProperty(value = "imageName")
+    @JsonProperty(value = "imageName", required = true)
     private String name;
 
     /*
@@ -26,7 +27,7 @@ public final class RepositoryProperties {
     /*
      * Image last update time
      */
-    @JsonProperty(value = "lastUpdateTime")
+    @JsonProperty(value = "lastUpdateTime", required = true)
     private OffsetDateTime lastUpdatedOn;
 
     /*
@@ -42,9 +43,9 @@ public final class RepositoryProperties {
     private int tagCount;
 
     /*
-     * Changeable attributes
+     * Writeable properties of the resource
      */
-    @JsonProperty(value = "changeableAttributes")
+    @JsonProperty(value = "changeableAttributes", required = true)
     private ContentProperties writeableProperties;
 
     /**
@@ -148,7 +149,7 @@ public final class RepositoryProperties {
     }
 
     /**
-     * Get the writeableProperties property: Changeable attributes.
+     * Get the writeableProperties property: Writeable properties of the resource.
      *
      * @return the writeableProperties value.
      */
@@ -157,7 +158,7 @@ public final class RepositoryProperties {
     }
 
     /**
-     * Set the writeableProperties property: Changeable attributes.
+     * Set the writeableProperties property: Writeable properties of the resource.
      *
      * @param writeableProperties the writeableProperties value to set.
      * @return the RepositoryProperties object itself.

@@ -4,6 +4,7 @@
 
 package com.azure.containers.containerregistry.implementation.models;
 
+import com.azure.containers.containerregistry.models.ContentProperties;
 import com.azure.core.annotation.Fluent;
 import com.azure.core.annotation.JsonFlatten;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -44,7 +45,7 @@ public class TagProperties {
     private OffsetDateTime lastUpdatedOn;
 
     /*
-     * Changeable attributes
+     * Writeable properties of the resource
      */
     @JsonProperty(value = "tag.changeableAttributes")
     private ContentProperties writeableProperties;
@@ -150,7 +151,7 @@ public class TagProperties {
     }
 
     /**
-     * Get the writeableProperties property: Changeable attributes.
+     * Get the writeableProperties property: Writeable properties of the resource.
      *
      * @return the writeableProperties value.
      */
@@ -159,7 +160,7 @@ public class TagProperties {
     }
 
     /**
-     * Set the writeableProperties property: Changeable attributes.
+     * Set the writeableProperties property: Writeable properties of the resource.
      *
      * @param writeableProperties the writeableProperties value to set.
      * @return the TagProperties object itself.

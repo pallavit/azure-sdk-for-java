@@ -160,13 +160,11 @@ public final class Utils {
             return null;
         }
 
-        ContentProperties writeableProps = mapContentProperties(propsImpl.getWriteableProperties());
-
         return new RepositoryProperties(
             propsImpl.getName(),
             propsImpl.getRegistryArtifactCount(),
             propsImpl.getTagCount(),
-            writeableProps,
+            propsImpl.getWriteableProperties(),
             propsImpl.getCreatedOn(),
             propsImpl.getLastUpdatedOn()
         );
@@ -183,11 +181,11 @@ public final class Utils {
             return null;
         }
 
-        List<RegistryArtifactProperties> registryArtifacts = getRegistryArtifacts(propsImpl.getRegistryArtifacts());
+        List<RegistryArtifactProperties> registryArtifacts = getRegistryArtifacts(propsImpl.getReferences());
 
         return new RegistryArtifactProperties(
             propsImpl.getDigest(),
-            propsImpl.getManifestProperties(),
+            propsImpl.getWriteableProperties(),
             registryArtifacts,
             propsImpl.getCpuArchitecture(),
             propsImpl.getOperatingSystem(),
@@ -265,13 +263,11 @@ public final class Utils {
             return null;
         }
 
-        ContentProperties contentProperties = mapContentProperties(props.getWriteableProperties());
-
         return new TagProperties(
             props.getName(),
             props.getRepository(),
             props.getDigest(),
-            contentProperties,
+            props.getWriteableProperties(),
             props.getCreatedOn(),
             props.getLastUpdatedOn()
         );

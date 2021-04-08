@@ -38,8 +38,34 @@ generate-client-interfaces: false
 license-header: MICROSOFT_MIT_SMALL
 add-context-parameter: true
 context-client-method-parameter: true
-service-interface-as-public: true 
+sync-methods: all
 models-subpackage: implementation.models
-custom-types: ContentProperties
+custom-types: ContentProperties,DeletedRepository,RegistryArtifactOrderBy,TagOrderBy,RepositoryAttributes,ManifestAttributes
 custom-types-subpackage: models
 ```
+
+directive:
+- from: swagger-document
+  where: $.definitions.DeletedRepository
+  transform: >
+  $["properties"]["manifestsDeleted"].readOnly = true;
+  $["properties"]["tagsDeleted"].readOnly = true;
+
+directive:
+- from: swagger-document
+  where: $.definitions.RepositoryAttributes
+  transform: >
+  $["properties"]["imageName"].readOnly = true;
+  $["properties"]["createdTime"].readOnly = true;
+  $["properties"]["lastUpdateTime"].readOnly = true;
+  $["properties"]["manifestCount"].readOnly = true;
+  $["properties"]["tagCount"].readOnly = true;
+  $["properties"]["changeableAttributes"].readOnly = true;
+
+
+directive:
+- from: swagger-document
+  where: $.definitions.ManifestAttributes
+  transform: >
+  $["properties"]["imageName"].readOnly = true;
+  $["properties"]["manifest"].readOnly = true;

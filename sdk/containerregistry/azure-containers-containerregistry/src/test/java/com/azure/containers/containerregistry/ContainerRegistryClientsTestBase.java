@@ -82,7 +82,7 @@ public class ContainerRegistryClientsTestBase extends TestBase {
     List<String> getChildArtifacts(Collection<RegistryArtifactProperties> artifacts) {
         return artifacts.stream().filter(artifact -> {
             ContentProperties props = artifact.getWriteableProperties();
-            return props.hasCanDelete() && props.hasCanWrite() && artifact.getCpuArchitecture() != null;
+            return props.isCanDelete() && props.isCanWrite() && artifact.getCpuArchitecture() != null;
         }).map(s -> s.getDigest()).collect(Collectors.toList());
     }
 
@@ -197,10 +197,10 @@ public class ContainerRegistryClientsTestBase extends TestBase {
 
     void validateContentProperties(ContentProperties properties) {
         assertNotNull(properties);
-        assertEquals(false, properties.hasCanDelete(), "canDelete incorrect");
-        assertEquals(true, properties.hasCanList(), "canList incorrect");
-        assertEquals(true, properties.hasCanRead(), "canRead incorrect");
-        assertEquals(true, properties.hasCanWrite(), "canWrite incorrect");
+        assertEquals(false, properties.isCanDelete(), "canDelete incorrect");
+        assertEquals(true, properties.isCanList(), "canList incorrect");
+        assertEquals(true, properties.isCanRead(), "canRead incorrect");
+        assertEquals(true, properties.isCanWrite(), "canWrite incorrect");
     }
 
     void importImage(String repositoryName, List<String> tags) {

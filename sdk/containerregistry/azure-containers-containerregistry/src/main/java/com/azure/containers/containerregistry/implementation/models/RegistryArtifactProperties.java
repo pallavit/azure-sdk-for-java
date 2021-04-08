@@ -18,13 +18,13 @@ public class RegistryArtifactProperties {
     /*
      * Image name
      */
-    @JsonProperty(value = "imageName", required = true)
+    @JsonProperty(value = "imageName")
     private String repository;
 
     /*
      * Manifest
      */
-    @JsonProperty(value = "manifest.digest", required = true)
+    @JsonProperty(value = "manifest.digest")
     private String digest;
 
     /*
@@ -61,19 +61,19 @@ public class RegistryArtifactProperties {
      * List of manifest attributes details
      */
     @JsonProperty(value = "manifest.references")
-    private List<ManifestAttributesManifestReferences> registryArtifacts;
+    private List<ManifestAttributesManifestReferences> references;
 
     /*
      * List of tags
      */
-    @JsonProperty(value = "manifest.tags", required = true)
+    @JsonProperty(value = "manifest.tags")
     private List<String> tags;
 
     /*
-     * Changeable attributes
+     * Writeable properties of the resource
      */
-    @JsonProperty(value = "manifest.changeableAttributes", required = true)
-    private ContentProperties manifestProperties;
+    @JsonProperty(value = "manifest.changeableAttributes")
+    private ContentProperties writeableProperties;
 
     /**
      * Get the repository property: Image name.
@@ -216,23 +216,22 @@ public class RegistryArtifactProperties {
     }
 
     /**
-     * Get the registryArtifacts property: List of manifest attributes details.
+     * Get the references property: List of manifest attributes details.
      *
-     * @return the registryArtifacts value.
+     * @return the references value.
      */
-    public List<ManifestAttributesManifestReferences> getRegistryArtifacts() {
-        return this.registryArtifacts;
+    public List<ManifestAttributesManifestReferences> getReferences() {
+        return this.references;
     }
 
     /**
-     * Set the registryArtifacts property: List of manifest attributes details.
+     * Set the references property: List of manifest attributes details.
      *
-     * @param registryArtifacts the registryArtifacts value to set.
+     * @param references the references value to set.
      * @return the RegistryArtifactProperties object itself.
      */
-    public RegistryArtifactProperties setRegistryArtifacts(
-            List<ManifestAttributesManifestReferences> registryArtifacts) {
-        this.registryArtifacts = registryArtifacts;
+    public RegistryArtifactProperties setReferences(List<ManifestAttributesManifestReferences> references) {
+        this.references = references;
         return this;
     }
 
@@ -257,22 +256,22 @@ public class RegistryArtifactProperties {
     }
 
     /**
-     * Get the manifestProperties property: Changeable attributes.
+     * Get the writeableProperties property: Writeable properties of the resource.
      *
-     * @return the manifestProperties value.
+     * @return the writeableProperties value.
      */
-    public ContentProperties getManifestProperties() {
-        return this.manifestProperties;
+    public ContentProperties getWriteableProperties() {
+        return this.writeableProperties;
     }
 
     /**
-     * Set the manifestProperties property: Changeable attributes.
+     * Set the writeableProperties property: Writeable properties of the resource.
      *
-     * @param manifestProperties the manifestProperties value to set.
+     * @param writeableProperties the writeableProperties value to set.
      * @return the RegistryArtifactProperties object itself.
      */
-    public RegistryArtifactProperties setManifestProperties(ContentProperties manifestProperties) {
-        this.manifestProperties = manifestProperties;
+    public RegistryArtifactProperties setWriteableProperties(ContentProperties writeableProperties) {
+        this.writeableProperties = writeableProperties;
         return this;
     }
 }
