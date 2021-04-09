@@ -31,7 +31,7 @@ autorest --java --use:@autorest/java@4.0.x
 ``` yaml
 input-file: https://github.com/Azure/azure-sdk-for-js/blob/1998b841dcfa3fd17f0d8e0a4973ea61a25d2ecb/sdk/containerregistry/container-registry/swagger/containerregistry.json
 java: true
-output-folder: ./..
+output-folder: ./../check2
 generate-client-as-impl: true
 namespace: com.azure.containers.containerregistry
 generate-client-interfaces: false
@@ -40,7 +40,7 @@ add-context-parameter: true
 context-client-method-parameter: true
 sync-methods: all
 models-subpackage: implementation.models
-custom-types: ContentProperties,DeletedRepository,RegistryArtifactOrderBy,TagOrderBy,RepositoryAttributes,ManifestAttributes
+custom-types: ContentProperties,RegistryArtifactOrderBy,TagOrderBy,RepositoryAttributes,ManifestAttributes
 custom-types-subpackage: models
 ```
 
@@ -61,8 +61,7 @@ directive:
   $["properties"]["manifestCount"].readOnly = true;
   $["properties"]["tagCount"].readOnly = true;
   $["properties"]["changeableAttributes"].readOnly = true;
-
-
+  
 directive:
 - from: swagger-document
   where: $.definitions.ManifestAttributes
