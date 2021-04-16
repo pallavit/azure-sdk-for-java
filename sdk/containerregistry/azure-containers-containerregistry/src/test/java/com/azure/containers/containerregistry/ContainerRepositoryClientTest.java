@@ -91,8 +91,8 @@ public class ContainerRepositoryClientTest extends ContainerRegistryClientsTestB
     public void setRepositoryPropertiesThrows(HttpClient httpClient) {
         ContainerRepositoryClient client = getContainerRepositoryClientUnknownRepo(httpClient);
 
-        assertThrows(ResourceNotFoundException.class, () ->  client.setProperties(writeableProperties));
-        assertThrows(ResourceNotFoundException.class, () ->  client.setPropertiesWithResponse(writeableProperties, Context.NONE));
+        assertThrows(ResourceNotFoundException.class, () ->  client.updateProperties(writeableProperties));
+        assertThrows(ResourceNotFoundException.class, () ->  client.updatePropertiesWithResponse(writeableProperties, Context.NONE));
     }
 
     @ParameterizedTest(name = DISPLAY_NAME_WITH_ARGUMENTS)
@@ -160,9 +160,9 @@ public class ContainerRepositoryClientTest extends ContainerRegistryClientsTestB
     @MethodSource("getHttpClients")
     public void setManifestPropertiesThrows(HttpClient httpClient) {
         ContainerRepositoryClient client = getContainerRepositoryClient(httpClient);
-        assertThrows(NullPointerException.class, () -> client.setManifestProperties(null, writeableProperties));
-        assertThrows(NullPointerException.class, () -> client.setManifestProperties("unknownTag", null));
-        assertThrows(ResourceNotFoundException.class, () -> client.setManifestProperties("unknownTag", writeableProperties));
+        assertThrows(NullPointerException.class, () -> client.updateManifestProperties(null, writeableProperties));
+        assertThrows(NullPointerException.class, () -> client.updateManifestProperties("unknownTag", null));
+        assertThrows(ResourceNotFoundException.class, () -> client.updateManifestProperties("unknownTag", writeableProperties));
     }
 
 
@@ -309,14 +309,14 @@ public class ContainerRepositoryClientTest extends ContainerRegistryClientsTestB
     public void setTagPropertiesThrows(HttpClient httpClient) {
         ContainerRepositoryClient client = getContainerRepositoryClient(httpClient);
 
-        assertThrows(NullPointerException.class, () -> client.setTagProperties(null, writeableProperties));
+        assertThrows(NullPointerException.class, () -> client.updateTagProperties(null, writeableProperties));
 
-        assertThrows(NullPointerException.class, () -> client.setTagPropertiesWithResponse(null, writeableProperties, Context.NONE));
+        assertThrows(NullPointerException.class, () -> client.updateTagPropertiesWithResponse(null, writeableProperties, Context.NONE));
 
-        assertThrows(NullPointerException.class, () -> client.setTagProperties(LATEST_TAG_NAME,  null));
-        assertThrows(NullPointerException.class, () -> client.setTagPropertiesWithResponse(LATEST_TAG_NAME,  null, Context.NONE));
+        assertThrows(NullPointerException.class, () -> client.updateTagProperties(LATEST_TAG_NAME,  null));
+        assertThrows(NullPointerException.class, () -> client.updateTagPropertiesWithResponse(LATEST_TAG_NAME,  null, Context.NONE));
 
-        assertThrows(ResourceNotFoundException.class, () -> client.setTagProperties("unknown", writeableProperties));
-        assertThrows(ResourceNotFoundException.class, () -> client.setTagPropertiesWithResponse("unknown", writeableProperties, Context.NONE));
+        assertThrows(ResourceNotFoundException.class, () -> client.updateTagProperties("unknown", writeableProperties));
+        assertThrows(ResourceNotFoundException.class, () -> client.updateTagPropertiesWithResponse("unknown", writeableProperties, Context.NONE));
     }
 }

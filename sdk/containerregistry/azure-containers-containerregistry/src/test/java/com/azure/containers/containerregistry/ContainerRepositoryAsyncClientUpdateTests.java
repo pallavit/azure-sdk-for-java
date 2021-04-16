@@ -69,15 +69,15 @@ public class ContainerRepositoryAsyncClientUpdateTests extends ContainerRegistry
 
         if (getTestMode() != TestMode.PLAYBACK) {
             if (digest != null) {
-                client.setManifestProperties(digest, defaultProperties).block();
+                client.updateManifestProperties(digest, defaultProperties).block();
             }
 
             if (resetTag) {
-                client.setTagProperties(TAG_TO_UPDATE, defaultProperties).block();
+                client.updateTagProperties(TAG_TO_UPDATE, defaultProperties).block();
             }
 
             if (resetRepository) {
-                client.setProperties(defaultProperties).block();
+                client.updateProperties(defaultProperties).block();
             }
         }
     }
@@ -89,7 +89,7 @@ public class ContainerRepositoryAsyncClientUpdateTests extends ContainerRegistry
         ContainerRepositoryAsyncClient client = getContainerRepositoryAsyncClient(httpClient);
 
         resetRepository = true;
-        StepVerifier.create(client.setProperties(writeableProperties).then(monoDelay().flatMap(res -> client.getProperties())))
+        StepVerifier.create(client.updateProperties(writeableProperties).then(monoDelay().flatMap(res -> client.getProperties())))
             .assertNext(res -> validateContentProperties(res.getWriteableProperties()))
             .verifyComplete();
     }
@@ -100,7 +100,7 @@ public class ContainerRepositoryAsyncClientUpdateTests extends ContainerRegistry
 //        ContainerRepositoryAsyncClient client = getContainerRepositoryAsyncClient(httpClient);
 //
 //        resetRepository = true;
-//        StepVerifier.create(client.setPropertiesWithResponse(writeableProperties).then(monoDelay().flatMap(res -> client.getProperties())))
+//        StepVerifier.create(client.updatePropertiesWithResponse(writeableProperties).then(monoDelay().flatMap(res -> client.getProperties())))
 //            .assertNext(res -> validateContentProperties(res.getWriteableProperties()))
 //            .verifyComplete();
 //    }
@@ -114,18 +114,18 @@ public class ContainerRepositoryAsyncClientUpdateTests extends ContainerRegistry
         List<RegistryArtifactProperties> repositories = props.stream().collect(Collectors.toList());
         digest = getChildArtifactDigest(repositories);
 
-        StepVerifier.create(client.setManifestProperties(digest, writeableProperties).then(monoDelay().flatMap(res -> client.getRegistryArtifactProperties(digest))))
+        StepVerifier.create(client.updateManifestProperties(digest, writeableProperties).then(monoDelay().flatMap(res -> client.getRegistryArtifactProperties(digest))))
             .assertNext(res -> validateContentProperties(res.getWriteableProperties()))
             .verifyComplete();
     }
 
 //    @ParameterizedTest(name = DISPLAY_NAME_WITH_ARGUMENTS)
 //    @MethodSource("getHttpClients")
-//    public void setManifestPropertiesWithResponse(HttpClient httpClient) {
+//    public void updateManifestPropertiesWithResponse(HttpClient httpClient) {
 //        ContainerRepositoryAsyncClient client = getContainerRepositoryAsyncClient(httpClient);
 //        digest = digests.get(1);
 //
-//        StepVerifier.create(client.setManifestPropertiesWithResponse(digest, writeableProperties).then(monoDelay().flatMap(res -> client.getRegistryArtifactProperties(digest))))
+//        StepVerifier.create(client.updateManifestPropertiesWithResponse(digest, writeableProperties).then(monoDelay().flatMap(res -> client.getRegistryArtifactProperties(digest))))
 //            .assertNext(res -> validateContentProperties(res.getWriteableProperties()))
 //            .verifyComplete();
 //    }
@@ -158,7 +158,7 @@ public class ContainerRepositoryAsyncClientUpdateTests extends ContainerRegistry
         ContainerRepositoryAsyncClient client = getContainerRepositoryAsyncClient(httpClient);
         resetTag = true;
 
-        StepVerifier.create(client.setTagProperties(TAG_TO_UPDATE, writeableProperties).then(monoDelay().flatMap(res -> client.getTagProperties(TAG_TO_UPDATE))))
+        StepVerifier.create(client.updateTagProperties(TAG_TO_UPDATE, writeableProperties).then(monoDelay().flatMap(res -> client.getTagProperties(TAG_TO_UPDATE))))
             .assertNext(res -> validateContentProperties(res.getWriteableProperties()))
             .verifyComplete();
     }
@@ -169,7 +169,7 @@ public class ContainerRepositoryAsyncClientUpdateTests extends ContainerRegistry
 //        ContainerRepositoryAsyncClient client = getContainerRepositoryAsyncClient(httpClient);
 //        resetTag = true;
 //
-//        StepVerifier.create(client.setTagPropertiesWithResponse(TAG_TO_UPDATE, writeableProperties).then(monoDelay().flatMap(res -> client.getTagProperties(TAG_TO_UPDATE))))
+//        StepVerifier.create(client.updateTagPropertiesWithResponse(TAG_TO_UPDATE, writeableProperties).then(monoDelay().flatMap(res -> client.getTagProperties(TAG_TO_UPDATE))))
 //            .assertNext(res -> validateContentProperties(res.getWriteableProperties()))
 //            .verifyComplete();
 //    }

@@ -57,15 +57,15 @@ public class ContainerRepositoryUpdateTests extends ContainerRegistryClientsTest
         if (getTestMode() != TestMode.PLAYBACK) {
 
             if (digest != null) {
-                client.setManifestProperties(digest, defaultProperties);
+                client.updateManifestProperties(digest, defaultProperties);
             }
 
             if (resetTag) {
-                client.setTagProperties(TAG_TO_UPDATE, defaultProperties);
+                client.updateTagProperties(TAG_TO_UPDATE, defaultProperties);
             }
 
             if (resetRepository) {
-                client.setProperties(defaultProperties);
+                client.updateProperties(defaultProperties);
             }
         }
     }
@@ -76,7 +76,7 @@ public class ContainerRepositoryUpdateTests extends ContainerRegistryClientsTest
         ContainerRepositoryClient client = getContainerRepositoryClient(httpClient);
         resetRepository = true;
 
-        client.setProperties(writeableProperties);
+        client.updateProperties(writeableProperties);
         testDelay();
         validateContentProperties(client.getProperties().getWriteableProperties());
     }
@@ -86,7 +86,7 @@ public class ContainerRepositoryUpdateTests extends ContainerRegistryClientsTest
 //    public void setRepositoryPropertiesWithResponse(HttpClient httpClient) {
 //        ContainerRepositoryClient client = getContainerRepositoryClient(httpClient);
 //        resetRepository = true;
-//        client.setPropertiesWithResponse(writeableProperties, Context.NONE);
+//        client.updatePropertiesWithResponse(writeableProperties, Context.NONE);
 //        testDelay();
 //        validateContentProperties(client.getProperties().getWriteableProperties());
 //    }
@@ -98,7 +98,7 @@ public class ContainerRepositoryUpdateTests extends ContainerRegistryClientsTest
 
         List<RegistryArtifactProperties> repositories = client.listRegistryArtifacts().stream().collect(Collectors.toList());
         digest = getChildArtifactDigest(repositories);
-        client.setManifestProperties(digest, writeableProperties);
+        client.updateManifestProperties(digest, writeableProperties);
         testDelay();
         RegistryArtifactProperties acProps = client.getRegistryArtifactProperties(digest);
         assertNotNull(acProps);
@@ -107,11 +107,11 @@ public class ContainerRepositoryUpdateTests extends ContainerRegistryClientsTest
 
 //    @ParameterizedTest(name = DISPLAY_NAME_WITH_ARGUMENTS)
 //    @MethodSource("getHttpClients")
-//    public void setManifestPropertiesWithResponse(HttpClient httpClient) {
+//    public void updateManifestPropertiesWithResponse(HttpClient httpClient) {
 //        ContainerRepositoryClient client = getContainerRepositoryClient(httpClient);
 //
 //        digest = digests.get(1);
-//        client.setManifestPropertiesWithResponse(digest, writeableProperties, Context.NONE);
+//        client.updateManifestPropertiesWithResponse(digest, writeableProperties, Context.NONE);
 //        testDelay();
 //        RegistryArtifactProperties acProps = client.getRegistryArtifactProperties(digest);
 //        assertNotNull(acProps);
@@ -152,7 +152,7 @@ public class ContainerRepositoryUpdateTests extends ContainerRegistryClientsTest
     public void setTagProperties(HttpClient httpClient) {
         ContainerRepositoryClient client = getContainerRepositoryClient(httpClient);
         resetTag = true;
-        client.setTagProperties(TAG_TO_UPDATE, writeableProperties);
+        client.updateTagProperties(TAG_TO_UPDATE, writeableProperties);
         testDelay();
         validateContentProperties(client.getTagProperties(TAG_TO_UPDATE).getWriteableProperties());
     }
@@ -163,7 +163,7 @@ public class ContainerRepositoryUpdateTests extends ContainerRegistryClientsTest
 //        ContainerRepositoryClient client = getContainerRepositoryClient(httpClient);
 //        resetTag = true;
 //
-//        client.setTagPropertiesWithResponse(TAG_TO_UPDATE, writeableProperties, Context.NONE);
+//        client.updateTagPropertiesWithResponse(TAG_TO_UPDATE, writeableProperties, Context.NONE);
 //        testDelay();
 //        validateContentProperties(client.getTagProperties(TAG_TO_UPDATE).getWriteableProperties());
 //    }

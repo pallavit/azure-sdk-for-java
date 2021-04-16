@@ -88,7 +88,7 @@ public class ContainerRepositoryClientAsyncTest extends ContainerRegistryClients
     @MethodSource("getHttpClients")
     public void setRepositoryPropertiesThrows(HttpClient httpClient) {
         ContainerRepositoryAsyncClient client = getContainerRepositoryAsyncClient(httpClient);
-        StepVerifier.create(client.setProperties(null))
+        StepVerifier.create(client.updateProperties(null))
             .expectError(NullPointerException.class)
             .verify();
     }
@@ -181,15 +181,15 @@ public class ContainerRepositoryClientAsyncTest extends ContainerRegistryClients
     @MethodSource("getHttpClients")
     public void setManifestPropertiesThrows(HttpClient httpClient) {
         ContainerRepositoryAsyncClient client = getContainerRepositoryAsyncClient(httpClient);
-        StepVerifier.create(client.setManifestProperties(null, new ContentProperties()))
+        StepVerifier.create(client.updateManifestProperties(null, new ContentProperties()))
             .expectError(NullPointerException.class)
             .verify();
 
-        StepVerifier.create(client.setManifestProperties("unknownTag", null))
+        StepVerifier.create(client.updateManifestProperties("unknownTag", null))
             .expectError(NullPointerException.class)
             .verify();
 
-        StepVerifier.create(client.setManifestProperties("unknownTag", new ContentProperties()))
+        StepVerifier.create(client.updateManifestProperties("unknownTag", new ContentProperties()))
             .expectError(ResourceNotFoundException.class)
             .verify();
     }
@@ -402,15 +402,15 @@ public class ContainerRepositoryClientAsyncTest extends ContainerRegistryClients
     public void setTagPropertiesThrows(HttpClient httpClient) {
         ContainerRepositoryAsyncClient client = getContainerRepositoryAsyncClient(httpClient);
 
-        StepVerifier.create(client.setTagProperties(null, new ContentProperties()))
+        StepVerifier.create(client.updateTagProperties(null, new ContentProperties()))
             .expectError(NullPointerException.class)
             .verify();
 
-        StepVerifier.create(client.setTagProperties(LATEST_TAG_NAME, null))
+        StepVerifier.create(client.updateTagProperties(LATEST_TAG_NAME, null))
             .expectError(NullPointerException.class)
             .verify();
 
-        StepVerifier.create(client.setTagProperties("unknown", writeableProperties))
+        StepVerifier.create(client.updateTagProperties("unknown", writeableProperties))
             .expectError(ResourceNotFoundException.class)
             .verify();
     }
