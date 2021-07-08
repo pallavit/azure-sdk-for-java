@@ -18,6 +18,10 @@ APIs in one client library, you will know how to use them in other client librar
 - A [Java Development Kit (JDK)][jdk_link], version 8 or later.
 
 ### Include the package
+
+Typically, you won't need to install or depend on Azure Core, instead it will be transitively downloaded by your build
+tool when you depend on client libraries using it.
+
 #### Include the BOM file
 
 Please include the azure-sdk-bom to your project to take dependency on the latest GA version of the library.
@@ -49,9 +53,6 @@ and then include the direct dependency in the dependencies section without the v
 #### Include direct dependency
 If you want to take dependency on a particular version of the library that is not present in the BOM,
 add the direct dependency to your project as follows.
-
-Typically, you won't need to install or depend on Azure Core, instead it will be transitively downloaded by your build
-tool when you depend on client libraries using it.
 
 [//]: # ({x-version-update-start;com.azure:azure-core;current})
 ```xml
