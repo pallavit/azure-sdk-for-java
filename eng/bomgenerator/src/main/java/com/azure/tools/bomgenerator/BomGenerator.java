@@ -11,7 +11,6 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -23,41 +22,24 @@ import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import static com.azure.tools.bomgenerator.Utils.AZURE_CORE_GROUPID;
-import static com.azure.tools.bomgenerator.Utils.AZURE_CORE_TEST_LIBRARY;
 import static com.azure.tools.bomgenerator.Utils.AZURE_PERF_LIBRARY_IDENTIFIER;
 import static com.azure.tools.bomgenerator.Utils.AZURE_TEST_LIBRARY_IDENTIFIER;
 import static com.azure.tools.bomgenerator.Utils.EXCLUSION_LIST;
 import static com.azure.tools.bomgenerator.Utils.POM_TYPE;
 import static com.azure.tools.bomgenerator.Utils.SDK_DEPENDENCY_PATTERN;
-import static com.azure.tools.bomgenerator.Utils.SDK_NON_GA_PATTERN;
 
 public class BomGenerator {
     private String outputFileName;
     private String inputFileName;
     private String pomFileName;
-    private String externalDependenciesFileName;
 
     private static Logger logger = LoggerFactory.getLogger(BomGenerator.class);
 
-    BomGenerator() {
-    }
-
-    public void setInputFile(String inputFileName) {
+    BomGenerator(String inputFileName, String outputFileName, String pomFileName) {
         this.inputFileName = inputFileName;
-    }
-
-    public void setOutputFile(String outputFileName) {
         this.outputFileName = outputFileName;
-    }
-
-    public void setPomFile(String pomFileName) {
         this.pomFileName = pomFileName;
     }
-
-    public void setExternalDependenciesFile(String externalDependenciesFileName) {
-        this.externalDependenciesFileName = externalDependenciesFileName;
-    }
-
 
     public void generate() {
         TreeSet<BomDependency> inputDependencies = scan();
@@ -66,19 +48,19 @@ public class BomGenerator {
         // 1. Create the initial tree and reduce conflicts.
         // 2. And pick only those dependencies. that were in the input set, since they become the new roots of n-ary tree.
         DependencyAnalyzer analyzer = new DependencyAnalyzer(inputDependencies, externalDependencies);
-        TreeSet<BomDependency> outputDependencies = analyzer.analyze();
-        outputDependencies.retainAll(inputDependencies);
+        analyzer.analyzeAndReduce();
+        TreeSet<BomDependency> outputDependencies = analyzer.getBomEligibleDependencies();
+
 
         // 2. Create the new tree for the BOM.
         analyzer = new DependencyAnalyzer(outputDependencies, externalDependencies);
-        outputDependencies = analyzer.analyze();
-
-        // 3. Validate that the current BOM has no conflicts.
-        boolean validationPassed = analyzer.validate();
+        boolean validationFailed = analyzer.analyzeAndValidate();
 
         // 4. Create the new BOM file.
-        if(validationPassed) {
-            rewriteBomFile();
+        if(!validationFailed) {
+            // Rewrite the existing BOM to have the dependencies in the order in which we insert them, making the diff PR easier to review.
+            rewriteExistingBomFile();
+
             writeBom(outputDependencies);
         }
         else {
@@ -88,40 +70,13 @@ public class BomGenerator {
 
     private TreeSet<BomDependency> scan() {
         TreeSet<BomDependency> inputDependencies = new TreeSet<>(new BomDependencyComparator());
+
         try {
             for (String line : Files.readAllLines(Paths.get(inputFileName))) {
-                if (line.startsWith("com.azure")) {
-                    Matcher matcher = SDK_DEPENDENCY_PATTERN.matcher(line);
-                    if (matcher.matches()) {
-                        if (matcher.groupCount() == 4) {
-                            String groupId = matcher.group(1);
-                            String artifactId = matcher.group(2);
-                            String version = matcher.group(3);
+                BomDependency dependency = scanDependency(line);
 
-                            Matcher nonGAMatcher = SDK_NON_GA_PATTERN.matcher(version);
-                            if (!nonGAMatcher.matches()) {
-                                BomDependency dependency = new BomDependency(groupId, artifactId, version);
-                                if (AZURE_CORE_GROUPID.equalsIgnoreCase(groupId)) {
-                                    switch (artifactId) {
-                                        case "azure-sdk-all":
-                                        case "azure-sdk-parent":
-                                        case "azure-client-sdk-parent":
-                                            break;
-                                        default:
-                                            if (EXCLUSION_LIST.contains(artifactId)
-                                                || artifactId.contains(AZURE_PERF_LIBRARY_IDENTIFIER)
-                                                || (artifactId.contains(AZURE_TEST_LIBRARY_IDENTIFIER) && !artifactId.equalsIgnoreCase(AZURE_CORE_TEST_LIBRARY))) {
-                                                logger.info("Skipping dependency {}:{}", groupId, artifactId);
-                                                continue;
-                                            }
-
-                                            inputDependencies.add(dependency);
-                                            break;
-                                    }
-                                }
-                            }
-                        }
-                    }
+                if(dependency != null) {
+                    inputDependencies.add(dependency);
                 }
             }
         } catch (IOException exception) {
@@ -131,6 +86,34 @@ public class BomGenerator {
         return inputDependencies;
     }
 
+    private BomDependency scanDependency(String line) {
+        Matcher matcher = SDK_DEPENDENCY_PATTERN.matcher(line);
+        if (!matcher.matches()) {
+            return null;
+        }
+
+        if (matcher.groupCount() != 3) {
+            return null;
+        }
+
+        String artifactId = matcher.group(1);
+        String version = matcher.group(2);
+
+        if(version.contains("-")) {
+            // This is a non-GA library
+            return null;
+        }
+
+        if (EXCLUSION_LIST.contains(artifactId)
+            || artifactId.contains(AZURE_PERF_LIBRARY_IDENTIFIER)
+            || (artifactId.contains(AZURE_TEST_LIBRARY_IDENTIFIER))) {
+            logger.info("Skipping dependency {}:{}", AZURE_CORE_GROUPID, artifactId);
+            return null;
+        }
+
+        return new BomDependency(AZURE_CORE_GROUPID, artifactId, version);
+    }
+
     private TreeSet<BomDependency> resolveExternalDependencies() {
         TreeSet<BomDependency> externalDependencies = new TreeSet<>(new BomDependencyComparator());
         MavenXpp3Reader reader = new MavenXpp3Reader();
@@ -138,22 +121,15 @@ public class BomGenerator {
             Model model = reader.read(new FileReader(this.pomFileName));
             DependencyManagement management = model.getDependencyManagement();
             List<Dependency> externalBomDependencies = management.getDependencies().stream().filter(dependency -> dependency.getType().equals(POM_TYPE)).collect(Collectors.toList());
-            for (Dependency externalDependency : externalBomDependencies) {
-                externalDependencies.addAll(Utils.getPomFileContent(externalDependency));
-            }
-
-        } catch (XmlPullParserException e) {
+            externalDependencies.addAll(Utils.getExternalDependenciesContent(externalBomDependencies));
+        } catch (XmlPullParserException | IOException e) {
             e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException exception) {
-            exception.printStackTrace();
         }
 
         return externalDependencies;
     }
 
-    private void rewriteBomFile() {
+    private void rewriteExistingBomFile() {
         MavenXpp3Reader reader = new MavenXpp3Reader();
         try {
             Model model = reader.read(new FileReader(this.pomFileName));

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -46,14 +47,20 @@ public class DependencyAnalyzer {
         }
     }
 
-    public TreeSet<BomDependency> analyze() {
-        resolveTree();
-        filterConflicts();
-
+    public TreeSet<BomDependency> getBomEligibleDependencies() {
         return this.bomEligibleDependencies;
     }
 
-    public Boolean validate() {
+    public void analyzeAndReduce() {
+        analyze();
+        this.bomEligibleDependencies.retainAll(this.inputDependencies);
+    }
+
+    public boolean analyzeAndValidate() {
+        return analyze();
+    }
+
+    private boolean analyze() {
         resolveTree();
         return filterConflicts();
     }
@@ -128,14 +135,13 @@ public class DependencyAnalyzer {
         // TODO: Consider having a non-core plan of picking the highest version with the maximum dependant children.
         nameToVersionToChildrenDependencyTree.keySet().stream().forEach(
             key -> {
-                HashMap<String, Collection<BomDependency>> versionToDependency = nameToVersionToChildrenDependencyTree.get(key);
+                Map<String, Collection<BomDependency>> versionToDependency = nameToVersionToChildrenDependencyTree.get(key);
                 if (versionToDependency.size() > 1) {
                     hasConflict.set(true);
                     // We have multiple versions of this coming up, we will let the latest version win.
                     List<String> versionList = versionToDependency.keySet().stream().sorted(new DependencyVersionComparator()).collect(Collectors.toList());
                     String latestVersion = versionList.get(versionList.size() - 1);
 
-//                    if (key.getArtifactId().startsWith("azure-core")) {
                     logger.info("Multiple version of the dependency {} included", key);
                     logger.info("\tPicking the latest version for BOM: {}", latestVersion);
 
@@ -146,37 +152,7 @@ public class DependencyAnalyzer {
                     for (int index = 0; index < versionList.size() - 1; index++) {
                         String version = versionList.get(index);
                         makeDependencyInEligible(new BomDependency(dependency.getGroupId(), dependency.getArtifactId(), version));
-//                            bomIneligibleDependencies.addAll(versionToDependency.get(version));
-//                              logger.info("\tDiscarding version:{}", version);
-//                              logger.info("\t\tDiscarding child dependencies {}", versionToDependency.get(version).toString());
                     }
-//                    } else {
-//                        // If this is not a core dependency, we pick the highest version with the largest size.
-//                        int largestSize = 0;
-//                        String version = null;
-//
-//                        for (String orderedVersion : versionList) {
-//                            int currentSize = versionToDependency.get(orderedVersion).size();
-//                            if (currentSize > largestSize) {
-//                                largestSize = currentSize;
-//                                version = orderedVersion;
-//                            }
-//                        }
-//
-//                        BomDependency dependency = new BomDependency(key.getGroupId(), key.getArtifactId(), version);
-//                        bomEligibleDependencies.add(dependency);
-//                          logger.info("Multiple version of the dependency {} included.", key);
-//                          logger.info("\tPicking the highest version with largest dependents: {}", version);
-//
-//                        // Put all the other dependencies into the ineligible list.
-//                        for (String orderedVersion : versionList) {
-//                            if (orderedVersion != version) {
-//                                bomIneligibleDependencies.addAll(versionToDependency.get(orderedVersion));
-//                                  logger.info("\tDiscarding version:{}", orderedVersion);
-//                                  logger.info("\t\tDiscarding child dependencies {}", versionToDependency.get(orderedVersion).toString());
-//                            }
-//                        }
-//                    }
                 }
             });
 

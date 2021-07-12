@@ -12,12 +12,12 @@ import static com.azure.tools.bomgenerator.Utils.COMMANDLINE_POMFILE;
 public class Main {
 
     public static void main(String[] args) {
-        BomGenerator generator = new BomGenerator();
-        parseCommandLine(args, generator);
+        BomGenerator generator = parseCommandLine(args);
         generator.generate();
     }
 
-    private static void parseCommandLine(String[] args, BomGenerator generator) {
+    private static BomGenerator parseCommandLine(String[] args) {
+        String inputFile = null, outputFile = null, pomFile = null;
         for (String arg : args) {
             Matcher matcher = Utils.COMMANDLINE_REGEX.matcher(arg);
             if (matcher.matches()) {
@@ -27,34 +27,35 @@ public class Main {
 
                     switch (argName.toLowerCase()) {
                         case COMMANDLINE_INPUTFILE:
-                            generator.setInputFile(argValue);
+                            inputFile = argValue;
                             break;
 
                         case COMMANDLINE_OUTPUTFILE:
-                            generator.setOutputFile(argValue);
+                            outputFile = argValue;
                             break;
 
                         case COMMANDLINE_POMFILE:
-                            generator.setPomFile(argValue);
+                            pomFile = argValue;
                             break;
-
-                        case COMMANDLINE_EXTERNALDEPENDENCIES:
-                            generator.setExternalDependenciesFile((argValue));
-                            break;
-
-
-//                        case COMMANDLINE_GROUPID:
-//                            switch(argValue) {
-//                                case AZURE_CORE_GROUPID:
-//                                    generator.setGroupId(AZURE_CORE_GROUPID);
-//                                break;
-//
-//                                default:
-//                                    throw new UnsupportedOperationException();
-//                            }
                     }
                 }
             }
+        }
+
+        // validate that each of these are present.
+        validateInputs(inputFile, outputFile, pomFile);
+        return new BomGenerator(inputFile, outputFile, pomFile);
+    }
+
+    private static void validateInputs(String inputFile, String outputFile, String pomFile) {
+        validateInput(inputFile, COMMANDLINE_INPUTFILE);
+        validateInput(outputFile, COMMANDLINE_OUTPUTFILE);
+        validateInput(pomFile, COMMANDLINE_POMFILE);
+    }
+
+    private static void validateInput(String argName, String argValue) {
+        if(argValue == null || argValue.isEmpty()) {
+            throw new NullPointerException(String.format("%s can't be null", argName));
         }
     }
 }
