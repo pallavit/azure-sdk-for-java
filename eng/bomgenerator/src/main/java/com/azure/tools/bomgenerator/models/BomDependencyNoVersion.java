@@ -12,7 +12,6 @@ import java.util.Set;
 public class BomDependencyNoVersion implements MavenDependency {
     private String groupId;
     private String artifactId;
-    private Boolean isDiscarded;
 
     public BomDependencyNoVersion(String groupId, String artifactId) {
         this.groupId = groupId;
@@ -32,14 +31,6 @@ public class BomDependencyNoVersion implements MavenDependency {
     @Override
     public ScopeType getScope() {
         return ScopeType.RUNTIME;
-    }
-
-    public void setIsDiscarded(Boolean isDiscarded) {
-        this.isDiscarded = isDiscarded;
-    }
-
-    public Boolean getIsDiscarded() {
-        return this.isDiscarded;
     }
 
     @Override
@@ -82,12 +73,23 @@ public class BomDependencyNoVersion implements MavenDependency {
         return null;
     }
 
-    public String getFullyQualifiedNameDependencyName() {
+    @Override
+    public String toString() {
         return this.getGroupId() + ":" + this.getArtifactId();
     }
 
     @Override
-    public String toString() {
-        return this.getGroupId() + ":" + this.getArtifactId();
+    public boolean equals(Object o) {
+        if(o instanceof BomDependencyNoVersion) {
+            BomDependencyNoVersion bomDependency = (BomDependencyNoVersion) o;
+            bomDependency.toString().equals(this.toString());
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
     }
 }

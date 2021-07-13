@@ -1,7 +1,6 @@
 package com.azure.tools.bomgenerator;
 
 import com.azure.tools.bomgenerator.models.BomDependency;
-import com.azure.tools.bomgenerator.models.BomDependencyComparator;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Model;
@@ -16,8 +15,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
@@ -42,34 +42,33 @@ public class BomGenerator {
     }
 
     public void generate() {
-        TreeSet<BomDependency> inputDependencies = scan();
-        TreeSet<BomDependency> externalDependencies = resolveExternalDependencies();
+        List<BomDependency> inputDependencies = scan();
+        List<BomDependency> externalDependencies = resolveExternalDependencies();
 
         // 1. Create the initial tree and reduce conflicts.
         // 2. And pick only those dependencies. that were in the input set, since they become the new roots of n-ary tree.
         DependencyAnalyzer analyzer = new DependencyAnalyzer(inputDependencies, externalDependencies);
-        analyzer.analyzeAndReduce();
-        TreeSet<BomDependency> outputDependencies = analyzer.getBomEligibleDependencies();
-
+        analyzer.reduce();
+        Collection<BomDependency> outputDependencies = analyzer.getBomEligibleDependencies();
 
         // 2. Create the new tree for the BOM.
         analyzer = new DependencyAnalyzer(outputDependencies, externalDependencies);
-        boolean validationFailed = analyzer.analyzeAndValidate();
+        boolean validationFailed = analyzer.validate();
+        outputDependencies = analyzer.getBomEligibleDependencies();
 
         // 4. Create the new BOM file.
         if(!validationFailed) {
             // Rewrite the existing BOM to have the dependencies in the order in which we insert them, making the diff PR easier to review.
             rewriteExistingBomFile();
-
             writeBom(outputDependencies);
         }
         else {
-            logger.info("Validation for the BOM failed. Exiting...");
+            logger.trace("Validation for the BOM failed. Exiting...");
         }
     }
 
-    private TreeSet<BomDependency> scan() {
-        TreeSet<BomDependency> inputDependencies = new TreeSet<>(new BomDependencyComparator());
+    private List<BomDependency> scan() {
+        List<BomDependency> inputDependencies = new ArrayList<>();
 
         try {
             for (String line : Files.readAllLines(Paths.get(inputFileName))) {
@@ -107,15 +106,15 @@ public class BomGenerator {
         if (EXCLUSION_LIST.contains(artifactId)
             || artifactId.contains(AZURE_PERF_LIBRARY_IDENTIFIER)
             || (artifactId.contains(AZURE_TEST_LIBRARY_IDENTIFIER))) {
-            logger.info("Skipping dependency {}:{}", AZURE_CORE_GROUPID, artifactId);
+            logger.trace("Skipping dependency {}:{}", AZURE_CORE_GROUPID, artifactId);
             return null;
         }
 
         return new BomDependency(AZURE_CORE_GROUPID, artifactId, version);
     }
 
-    private TreeSet<BomDependency> resolveExternalDependencies() {
-        TreeSet<BomDependency> externalDependencies = new TreeSet<>(new BomDependencyComparator());
+    private List<BomDependency> resolveExternalDependencies() {
+        List<BomDependency> externalDependencies = new ArrayList<>();
         MavenXpp3Reader reader = new MavenXpp3Reader();
         try {
             Model model = reader.read(new FileReader(this.pomFileName));
@@ -144,7 +143,7 @@ public class BomGenerator {
         }
     }
 
-    private void writeBom(TreeSet<BomDependency> bomDependencies) {
+    private void writeBom(Collection<BomDependency> bomDependencies) {
         MavenXpp3Reader reader = new MavenXpp3Reader();
         try {
             Model model = reader.read(new FileReader(this.pomFileName));
